@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Review Test: Present Simple &amp; Present Continuous</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body { font-family: 'DM Sans', sans-serif; }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes confetti-fall { 0%{transform:translateY(-100%) rotate(0deg);opacity:1} 100%{transform:translateY(100vh) rotate(720deg);opacity:0} }
+        .confetti-piece { position:fixed; width:10px; height:10px; top:-10px; animation: confetti-fall 3s ease-out forwards; }
+        .progress-fill { transition: width 0.4s ease; }
+        .option-btn { transition: all 0.2s ease; }
+        .option-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(37,99,235,0.2); }
+        .popup-overlay { animation: fadeIn 0.2s ease; }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen flex flex-col"><!-- Fixed Header -->
+  <header data-template-id="header-section" class="canva-header fixed top-0 left-0 right-0 z-50 px-4 py-3 shadow-md">
+   <div class="max-w-4xl mx-auto flex justify-between items-center flex-wrap gap-2"><span data-template-id="header-left" class="canva-text text-sm font-medium"></span> <span data-template-id="header-right" class="canva-text text-sm font-medium"></span>
+   </div>
+  </header><!-- Fixed Footer -->
+  <footer data-template-id="footer-section" class="canva-footer fixed bottom-0 left-0 right-0 z-50 px-4 py-2 text-center"><span data-template-id="footer-text" class="canva-text text-xs"></span>
+  </footer><!-- Main Content -->
+  <main class="flex-1 pt-16 pb-12 px-4 flex items-center justify-center"><!-- Password Screen -->
+   <div id="password-screen" class="w-full max-w-md fade-in">
+    <div data-template-id="login-card" class="canva-card rounded-2xl shadow-xl p-8 text-center">
+     <h1 data-template-id="login-title" class="canva-text font-bold mb-2"></h1>
+     <p data-template-id="login-subtitle" class="canva-text mb-6"></p>
+     <form id="password-form" class="space-y-4"><label data-template-id="password-label" class="canva-text block text-left font-medium mb-1" for="pwd-input"></label> <input id="pwd-input" type="password" class="w-full px-4 py-3 border-2 border-blue-200 rounded-xl focus:border-blue-500 focus:outline-none text-lg" placeholder="Nhập mật khẩu">
+      <p id="pwd-error" class="text-red-500 text-sm hidden">Mật khẩu không chính xác. Vui lòng thử lại.</p><button data-template-id="start-button" class="canva-button w-full py-3 rounded-xl font-bold text-lg" type="submit"></button>
+     </form>
+    </div>
+   </div><!-- Quiz Screen -->
+   <div id="quiz-screen" class="w-full max-w-2xl hidden fade-in">
+    <div class="mb-4 flex justify-between items-center text-sm font-medium"><span id="q-counter" class="text-blue-700">Câu 1/20</span> <span id="score-display" class="text-green-700">Điểm: 0</span>
+    </div>
+    <div class="w-full bg-blue-100 rounded-full h-3 mb-6 overflow-hidden">
+     <div id="progress-bar" class="progress-fill h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full" style="width:0%"></div>
+    </div>
+    <div data-template-id="question-card" class="canva-card rounded-2xl shadow-lg p-6 md:p-8">
+     <p data-template-id="instruction-text" class="canva-text text-sm mb-4 italic"></p>
+     <h2 id="question-text" class="text-lg md:text-xl font-semibold text-gray-800 mb-6"></h2>
+     <div id="options-container" class="space-y-3"></div>
+    </div>
+   </div><!-- Result Screen -->
+   <div id="result-screen" class="w-full max-w-md hidden fade-in">
+    <div data-template-id="result-card" class="canva-card rounded-2xl shadow-xl p-8 text-center">
+     <h2 id="result-title" class="text-2xl font-bold text-blue-800 mb-4">🎉 HOÀN THÀNH BÀI KIỂM TRA 🎉</h2>
+     <p id="result-score" class="text-xl font-semibold text-gray-700 mb-2"></p>
+     <p id="result-percent" class="text-lg text-gray-600 mb-4"></p>
+     <p id="result-level" class="text-2xl mb-6"></p><button id="restart-btn" class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition">🔄 Làm lại bài kiểm tra</button>
+    </div>
+   </div>
+  </main><!-- Feedback Popup --> <!-- Feedback Popup -->
+  <div id="feedback-popup" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/40 popup-overlay px-4">
+   <div id="feedback-box" class="rounded-2xl shadow-2xl p-6 md:p-8 max-w-lg w-full text-center">
+    <p id="feedback-title" class="text-2xl font-bold mb-3"></p>
+    <p id="feedback-explain" class="text-left text-sm leading-relaxed mb-6 whitespace-pre-wrap"></p><button id="next-question-btn" class="w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700 transition">Câu tiếp theo →</button>
+   </div>
+  </div>
+  <script src="/_sdk/editing_sdk.js"></script>
+  <script>
+    const questions=[{q:"Look! The boys _____ football in the school yard now.",opts:["play","plays","are playing","is playing"],ans:2,explain:"✅ Đáp án đúng: C. are playing\n\nThe boys là chủ ngữ số nhiều nên dùng are. Các từ Look! và now cho biết hành động đang diễn ra tại thời điểm nói nên dùng thì hiện tại tiếp diễn.\n\n👉 are playing"},{q:"My father usually _____ breakfast before he _____ to work.",opts:["has / goes","have / go","is having / goes","has / is going"],ans:0,explain:"✅ Đáp án đúng: A. has / goes\n\nTừ usually diễn tả thói quen nên dùng thì hiện tại đơn. My father và he là ngôi thứ ba số ít nên động từ thêm s/es.\n\n👉 has / goes"},{q:"_____ your best friend good at Maths?",opts:["Am","Is","Are","Be"],ans:1,explain:"✅ Đáp án đúng: B. Is\n\nYour best friend là danh từ số ít nên dùng is trong câu hỏi với động từ to be.\n\n👉 Is your best friend good at Maths?"},{q:"We _____ English on Mondays and Thursdays.",opts:["study","studies","are studying","studying"],ans:0,explain:"✅ Đáp án đúng: A. study\n\nOn Mondays and Thursdays diễn tả lịch học thường xuyên nên dùng hiện tại đơn. Chủ ngữ We đi với động từ nguyên mẫu.\n\n👉 study"},{q:"Listen! Someone _____ the door.",opts:["knocks","knock","is knocking","knocked"],ans:2,explain:"✅ Đáp án đúng: C. is knocking\n\nTừ Listen! cho biết hành động đang diễn ra ngay lúc nói. Someone là chủ ngữ số ít nên dùng is.\n\n👉 is knocking"},{q:"My sister _____ TV now because she _____ her homework.",opts:["doesn't watch / does","isn't watching / is doing","doesn't watch / is doing","isn't watching / does"],ans:1,explain:"✅ Đáp án đúng: B. isn't watching / is doing\n\nTừ now cho thấy cả hai hành động đều đang diễn ra ở hiện tại nên dùng thì hiện tại tiếp diễn.\n\n👉 isn't watching / is doing"},{q:"What time _____ Nam usually _____ up?",opts:["do / get","does / gets","does / get","is / getting"],ans:2,explain:"✅ Đáp án đúng: C. does / get\n\nTừ usually diễn tả thói quen nên dùng hiện tại đơn. Sau does, động từ phải ở dạng nguyên mẫu.\n\n👉 does / get"},{q:"Why _____ your sister _____ a coat today? It isn't cold.",opts:["does / wear","is / wearing","does / wears","is / wear"],ans:1,explain:"✅ Đáp án đúng: B. is / wearing\n\nCâu hỏi nói về tình huống đặc biệt today nên dùng hiện tại tiếp diễn. Your sister là số ít nên dùng is.\n\n👉 is wearing\n\n⚠️ Nhiều bạn chọn hiện tại đơn vì thấy từ today, nhưng ở đây đang nói về hành động tạm thời hôm nay."},{q:"The students _____ quietly at the moment.",opts:["work","works","are working","working"],ans:2,explain:"✅ Đáp án đúng: C. are working\n\nCụm từ at the moment là dấu hiệu của hiện tại tiếp diễn. The students là số nhiều nên dùng are.\n\n👉 are working"},{q:"One of the students in my class _____ absent today.",opts:["am","are","is","be"],ans:2,explain:"✅ Đáp án đúng: C. is\n\nChủ ngữ thực sự là One, không phải students. Vì One là số ít nên dùng is.\n\n👉 is\n\n⚠️ Đừng bị đánh lừa bởi danh từ số nhiều phía sau."},{q:"Lan _____ to music every evening, but now she _____ a book.",opts:["listens / reads","listens / is reading","is listening / reads","listen / is reading"],ans:1,explain:"✅ Đáp án đúng: B. listens / is reading\n\nEvery evening → hiện tại đơn. Now → hiện tại tiếp diễn.\n\n👉 listens / is reading"},{q:"_____ your parents usually _____ dinner at home?",opts:["Do / have","Does / have","Are / having","Do / having"],ans:0,explain:"✅ Đáp án đúng: A. Do / have\n\nUsually diễn tả thói quen. Parents là số nhiều nên dùng Do. Sau Do dùng động từ nguyên mẫu.\n\n👉 Do / have"},{q:"Where _____ your brother now?",opts:["am","are","is","be"],ans:2,explain:"✅ Đáp án đúng: C. is\n\nYour brother là ngôi thứ ba số ít nên dùng is.\n\n👉 Where is your brother now?"},{q:"Tom and Peter _____ chess every weekend.",opts:["plays","play","are playing","playing"],ans:1,explain:"✅ Đáp án đúng: B. play\n\nEvery weekend là dấu hiệu của hiện tại đơn. Chủ ngữ Tom and Peter là số nhiều nên dùng play.\n\n👉 play"},{q:"Be quiet! The baby _____ .",opts:["sleeps","sleep","is sleeping","sleeping"],ans:2,explain:"✅ Đáp án đúng: C. is sleeping\n\nBe quiet! cho biết hành động đang diễn ra ngay lúc nói nên dùng hiện tại tiếp diễn.\n\n👉 is sleeping"},{q:"My classmates _____ usually _____ to school by bus.",opts:["don't / go","doesn't / go","aren't / going","don't / goes"],ans:0,explain:"✅ Đáp án đúng: A. don't / go\n\nUsually diễn tả thói quen. My classmates là số nhiều nên dùng don't. Sau don't dùng động từ nguyên mẫu.\n\n👉 don't / go"},{q:"Why _____ you _____ so fast today?",opts:["do / run","are / running","does / run","is / running"],ans:1,explain:"✅ Đáp án đúng: B. are / running\n\nTừ today trong câu này diễn tả hành động đang xảy ra tạm thời nên dùng hiện tại tiếp diễn.\n\n👉 are / running"},{q:"The list of school activities _____ on the notice board.",opts:["are","is","am","be"],ans:1,explain:"✅ Đáp án đúng: B. is\n\nChủ ngữ là The list, không phải activities. Vì list là số ít nên dùng is.\n\n👉 is\n\n⚠️ Hãy nhìn vào chủ ngữ đứng trước of."},{q:"At the moment, my mother _____ dinner while my father _____ the table.",opts:["cooks / sets","is cooking / is setting","cooks / is setting","is cooking / sets"],ans:1,explain:"✅ Đáp án đúng: B. is cooking / is setting\n\nAt the moment cho biết cả hai hành động đang diễn ra ở hiện tại nên dùng hiện tại tiếp diễn.\n\n👉 is cooking / is setting"},{q:"Which sentence is correct?",opts:["She usually is late for school.","She usually late for school.","She usually being late for school.","She is usually late for school."],ans:3,explain:"✅ Đáp án đúng: D. She is usually late for school.\n\nVới động từ to be, trạng từ tần suất như usually đứng sau động từ to be.\n\n👉 She is usually late for school."}];
+
+    let currentQ=0, score=0;
+    const audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+
+    function playTone(freq,duration,type='sine'){
+        const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+        o.type=type;o.frequency.value=freq;
+        g.gain.setValueAtTime(0.3,audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01,audioCtx.currentTime+duration);
+        o.connect(g);g.connect(audioCtx.destination);
+        o.start();o.stop(audioCtx.currentTime+duration);
+    }
+
+    function playSuccess(){playTone(523,0.2);setTimeout(()=>playTone(659,0.2),200);setTimeout(()=>playTone(784,0.4),400);}
+    function playError(){playTone(200,0.3,'sawtooth');setTimeout(()=>playTone(150,0.3,'sawtooth'),300);}
+    function playVictory(){playTone(523,0.15);setTimeout(()=>playTone(587,0.15),150);setTimeout(()=>playTone(659,0.15),300);setTimeout(()=>playTone(784,0.15),450);setTimeout(()=>playTone(1047,0.5),600);}
+
+    document.getElementById('password-form').addEventListener('submit',function(e){
+        e.preventDefault();
+        audioCtx.resume();
+        const pwd=document.getElementById('pwd-input').value;
+        if(pwd==='1205'){
+            document.getElementById('password-screen').classList.add('hidden');
+            document.getElementById('quiz-screen').classList.remove('hidden');
+            showQuestion();
+        } else {
+            document.getElementById('pwd-error').classList.remove('hidden');
+        }
+    });
+
+    function showQuestion(){
+        const q=questions[currentQ];
+        document.getElementById('q-counter').textContent=`Câu ${currentQ+1}/20`;
+        document.getElementById('score-display').textContent=`Điểm: ${score}`;
+        document.getElementById('progress-bar').style.width=`${(currentQ/20)*100}%`;
+        document.getElementById('question-text').textContent=q.q;
+        const container=document.getElementById('options-container');
+        container.innerHTML='';
+        const labels=['A','B','C','D'];
+        q.opts.forEach((opt,i)=>{
+            const btn=document.createElement('button');
+            btn.type='button';
+            btn.className='option-btn w-full text-left px-5 py-3 rounded-xl border-2 border-blue-200 bg-white hover:border-blue-500 font-medium text-gray-700';
+            btn.textContent=`${labels[i]}. ${opt}`;
+            btn.addEventListener('click',()=>selectAnswer(i));
+            container.appendChild(btn);
+        });
+    }
+
+    function selectAnswer(idx){
+        const btns=document.querySelectorAll('.option-btn');
+        btns.forEach(b=>b.disabled=true);
+        const q=questions[currentQ];
+        const popup=document.getElementById('feedback-popup');
+        const box=document.getElementById('feedback-box');
+        const title=document.getElementById('feedback-title');
+        const explain=document.getElementById('feedback-explain');
+        const nextBtn=document.getElementById('next-question-btn');
+
+        if(idx===q.ans){
+            score++;
+            playSuccess();
+            btns[idx].classList.add('bg-green-100','border-green-500');
+            box.className='rounded-2xl shadow-2xl p-6 md:p-8 max-w-lg w-full text-center bg-green-50 border-2 border-green-400';
+            title.textContent='✅ CHÍNH XÁC';
+            title.className='text-2xl font-bold mb-3 text-green-700';
+            explain.textContent=q.explain;
+            explain.className='text-left text-sm leading-relaxed text-gray-700 whitespace-pre-wrap';
+            popup.classList.remove('hidden');
+            nextBtn.onclick=()=>{popup.classList.add('hidden');nextQuestion();};
+        } else {
+            playError();
+            btns[idx].classList.add('bg-red-100','border-red-500');
+            btns[q.ans].classList.add('bg-green-100','border-green-500');
+            box.className='rounded-2xl shadow-2xl p-6 md:p-8 max-w-lg w-full text-center bg-red-50 border-2 border-red-400';
+            title.textContent='❌ CHƯA CHÍNH XÁC';
+            title.className='text-2xl font-bold mb-3 text-red-700';
+            explain.textContent=q.explain;
+            explain.className='text-left text-sm leading-relaxed text-gray-700 whitespace-pre-wrap';
+            popup.classList.remove('hidden');
+            nextBtn.onclick=()=>{popup.classList.add('hidden');nextQuestion();};
+        }
+    }
+
+    function nextQuestion(){
+        currentQ++;
+        if(currentQ>=20){showResult();}
+        else{showQuestion();}
+    }
+
+    function showResult(){
+        document.getElementById('quiz-screen').classList.add('hidden');
+        document.getElementById('result-screen').classList.remove('hidden');
+        document.getElementById('progress-bar').style.width='100%';
+        playVictory();
+        const pct=Math.round(score/20*100);
+        document.getElementById('result-score').textContent=`Số câu đúng: ${score} / 20`;
+        document.getElementById('result-percent').textContent=`Tỷ lệ: ${pct}%`;
+        let level='';
+        if(score>=18)level='🏆 Xuất sắc!';
+        else if(score>=15)level='🌟 Rất tốt!';
+        else if(score>=10)level='👍 Khá tốt!';
+        else level='📚 Cần luyện tập thêm!';
+        document.getElementById('result-level').textContent=level;
+        createConfetti();
+    }
+
+    function createConfetti(){
+        const colors=['#3b82f6','#ef4444','#22c55e','#eab308','#a855f7','#f97316'];
+        for(let i=0;i<80;i++){
+            const el=document.createElement('div');
+            el.className='confetti-piece';
+            el.style.left=Math.random()*100+'%';
+            el.style.background=colors[Math.floor(Math.random()*colors.length)];
+            el.style.animationDelay=Math.random()*2+'s';
+            el.style.borderRadius=Math.random()>0.5?'50%':'0';
+            document.body.appendChild(el);
+            setTimeout(()=>el.remove(),5000);
+        }
+    }
+
+    document.getElementById('restart-btn').addEventListener('click',function(){
+        currentQ=0;score=0;
+        document.getElementById('result-screen').classList.add('hidden');
+        document.getElementById('password-screen').classList.remove('hidden');
+        document.getElementById('pwd-input').value='';
+        document.getElementById('pwd-error').classList.add('hidden');
+    });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a0f45636d7bf4e3c',t:'MTc4MjA1ODc4Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
