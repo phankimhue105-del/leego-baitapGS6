@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Past Simple Quiz - LeeGo</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+        * { font-family: Arial, Helvetica, sans-serif; }
+        html, body { width: 100%; height: 100%; margin: 0; padding: 0; }
+        body { padding-top: 48px; padding-bottom: 0; }
+        
+        /* Text visibility fixes */
+        .screen { display: none; visibility: hidden; opacity: 0; }
+        .screen.active { display: block !important; visibility: visible !important; opacity: 1 !important; z-index: 10 !important; }
+        
+        /* Header fixes */
+        header { position: fixed; top: 0; left: 0; width: 100%; height: 48px; display: flex; align-items: center; padding: 0 16px; background: linear-gradient(90deg, #e53935, #b71c1c); box-shadow: 0 2px 8px rgba(0,0,0,0.12); visibility: visible; opacity: 1; z-index: 9999; }
+        header span { visibility: visible; opacity: 1; z-index: 10000; display: block; color: #ffffff; }
+        #header-text { flex: 1; }
+        #header-qkd { margin-left: auto; padding-left: 16px; }
+        
+        /* Cover page text visibility */
+        #cover-screen { visibility: visible !important; opacity: 1 !important; display: block !important; z-index: 10 !important; }
+        #cover-screen h1 { visibility: visible; opacity: 1; z-index: 999; position: relative; display: block; }
+        #cover-screen label, #cover-screen input, #cover-screen button { visibility: visible; opacity: 1; z-index: 999; position: relative; display: block; }
+        #pwd-msg { visibility: visible; opacity: 1; z-index: 999; display: block; }
+        
+        .word-btn { transition: all 0.2s; }
+        .word-btn.selected { opacity: 0.4; transform: scale(0.9); }
+        .sentence-word { animation: popIn 0.2s ease; }
+        @keyframes popIn { from { transform: scale(0); } to { transform: scale(1); } }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen w-full">
+  <!-- Header -->
+  <header data-template-id="header-bar" class="canva-header" style="position: fixed; top: 0; left: 0; width: 100%; height: 48px; display: flex; align-items: center; padding: 0 16px; z-index: 9999; visibility: visible; opacity: 1; background: linear-gradient(90deg, #e53935, #b71c1c); box-shadow: 0 2px 8px rgba(0,0,0,0.12);">
+   <span id="header-text" data-template-id="header-text" class="canva-text text-xs md:text-sm font-semibold" style="visibility: visible; opacity: 1; z-index: 10000; display: block; color: #ffffff; flex: 1;">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span><span id="header-qkd" class="canva-text text-xs md:text-sm font-semibold" style="visibility: visible; opacity: 1; z-index: 10000; display: block; color: #ffffff; margin-left: auto; padding-left: 16px;">QKĐ</span>
+  </header>
+  <main class="w-full max-w-2xl mx-auto px-4 py-6">
+   <!-- Cover Page -->
+   <div id="cover-screen" class="screen active" style="display: block; visibility: visible; opacity: 1; z-index: 10;">
+    <div class="text-center py-12">
+     <h1 data-template-id="cover-title" class="canva-text font-extrabold text-4xl md:text-6xl mb-8" style="visibility: visible; opacity: 1; z-index: 999; position: relative; display: block;">PAST SIMPLE</h1>
+     <div class="max-w-sm mx-auto space-y-4" style="visibility: visible; opacity: 1; z-index: 999; position: relative;"><label data-template-id="password-label" class="canva-text block text-lg font-medium" for="pwd-input" style="visibility: visible; opacity: 1; z-index: 999; display: block;">Enter Password</label> <input id="pwd-input" type="password" class="w-full px-4 py-3 text-lg border-2 border-gray-300 rounded-xl focus:border-red-500 focus:outline-none text-center" placeholder="Enter Password" style="visibility: visible; opacity: 1; z-index: 999; display: block;"> <button data-template-id="unlock-btn" class="canva-button w-full py-4 text-lg font-bold rounded-xl" onclick="unlockQuiz()" style="visibility: visible; opacity: 1; z-index: 999; display: block;">Unlock Quiz</button>
+      <p id="pwd-msg" class="text-base font-semibold" style="display: none; visibility: visible; opacity: 1; z-index: 999;"></p>
+     </div>
+     <div id="html-check" style="margin-top: 24px; font-size: 12px; color: #9ca3af; visibility: visible; opacity: 1; z-index: 999; display: block;">
+      HTML STATIC TEXT TEST
+     </div>
+    </div>
+   </div><!-- Quiz Screen -->
+   <div id="quiz-screen" class="screen fade-in" style="display: none; visibility: hidden; opacity: 0; z-index: -1;">
+    <div class="mb-4 flex justify-between items-center text-sm font-medium">
+     <span id="q-number" class="text-gray-700"></span> <span id="q-score" class="text-gray-700"></span>
+    </div>
+    <div class="w-full bg-gray-200 rounded-full h-3 mb-6">
+     <div id="progress-bar" class="h-3 rounded-full transition-all duration-300" style="width:0%; background:#dc2626;"></div>
+    </div>
+    <div id="part-label" class="text-xs font-bold uppercase tracking-wide text-red-600 mb-2"></div>
+    <div id="question-area" class="fade-in"></div>
+    <div id="feedback-area" class="mt-4 hidden"></div><button id="next-btn" class="hidden w-full mt-4 py-4 bg-red-600 text-white font-bold text-lg rounded-xl hover:bg-red-700" onclick="nextQuestion()">Câu tiếp theo →</button>
+   </div><!-- Result Screen -->
+   <div id="result-screen" class="screen fade-in" style="display: none; visibility: hidden; opacity: 0; z-index: -1;">
+    <div class="text-center py-8 space-y-4">
+     <h2 data-template-id="result-title" class="canva-text text-2xl md:text-3xl font-extrabold"></h2>
+     <p data-template-id="result-subtitle" class="canva-text text-lg"></p>
+     <div id="result-details" class="text-left max-w-sm mx-auto space-y-2 text-lg"></div>
+     <div id="result-rating" class="text-2xl font-bold mt-4"></div><button data-template-id="retry-btn" class="canva-button w-full max-w-sm py-4 text-lg font-bold rounded-xl mt-6" onclick="resetQuiz()"></button>
+    </div>
+   </div>
+  </main>
+  <script>
+    // Audio via Web Audio API
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    let audioCtx;
+    function getAudioCtx() { if (!audioCtx) audioCtx = new AudioCtx(); return audioCtx; }
+
+    function playTone(freq, duration, type='sine') {
+        const ctx = getAudioCtx();
+        const o = ctx.createOscillator();
+        const g = ctx.createGain();
+        o.type = type;
+        o.frequency.value = freq;
+        g.gain.setValueAtTime(0.3, ctx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + duration);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(); o.stop(ctx.currentTime + duration);
+    }
+
+    function playCorrect() { playTone(523, 0.15); setTimeout(()=>playTone(659, 0.15), 150); setTimeout(()=>playTone(784, 0.3), 300); }
+    function playWrong() { playTone(200, 0.3, 'sawtooth'); setTimeout(()=>playTone(150, 0.4, 'sawtooth'), 300); }
+    function playCelebration() { [0,200,400,600,800].forEach((d,i)=>setTimeout(()=>playTone([523,659,784,1047,1319][i],0.3),d)); }
+
+    // Quiz Data
+    const questions = [
+        // PART 1 - Past Form Challenge (5)
+        {part:"PART 1 – PAST FORM CHALLENGE",type:"mc",q:"Choose the correct past form of: <b>go</b>",opts:["goed","gone","went","going"],ans:2,exp:"'Go' là động từ bất quy tắc, quá khứ đơn là 'went'. Không thêm -ed."},
+        {part:"PART 1 – PAST FORM CHALLENGE",type:"mc",q:"Choose the correct past form of: <b>study</b>",opts:["studyed","studied","studed","studying"],ans:1,exp:"'Study' kết thúc bằng phụ âm + y → bỏ y thêm -ied → 'studied'."},
+        {part:"PART 1 – PAST FORM CHALLENGE",type:"mc",q:"Choose the correct past form of: <b>buy</b>",opts:["buyed","buied","bought","buying"],ans:2,exp:"'Buy' là động từ bất quy tắc, quá khứ đơn là 'bought'."},
+        {part:"PART 1 – PAST FORM CHALLENGE",type:"mc",q:"Choose the correct past form of: <b>stop</b>",opts:["stoped","stopped","stopping","stopted"],ans:1,exp:"'Stop' kết thúc bằng 1 nguyên âm + 1 phụ âm → gấp đôi phụ âm cuối + ed → 'stopped'."},
+        {part:"PART 1 – PAST FORM CHALLENGE",type:"mc",q:"Choose the correct past form of: <b>eat</b>",opts:["eated","eaten","ate","eating"],ans:2,exp:"'Eat' là động từ bất quy tắc, quá khứ đơn là 'ate'. 'Eaten' là quá khứ phân từ."},
+
+        // PART 2 - Past Simple Knowledge Check (7)
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"Dấu hiệu nào KHÔNG phải của thì quá khứ đơn?",opts:["yesterday","last week","tomorrow","ago"],ans:2,exp:"'Tomorrow' là dấu hiệu của tương lai. Các dấu hiệu quá khứ đơn: yesterday, last..., ago, in + năm quá khứ."},
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"Công thức câu phủ định với động từ thường ở quá khứ đơn là:",opts:["S + didn't + V-ed","S + didn't + V(nguyên thể)","S + wasn't + V-ed","S + not + V-ed"],ans:1,exp:"Câu phủ định: S + did not (didn't) + V nguyên thể. 'Did' đã mang nghĩa quá khứ nên động từ giữ nguyên thể."},
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"She ___ a doctor in 2020. (be)",opts:["is","was","were","been"],ans:1,exp:"'She' là ngôi thứ 3 số ít → dùng 'was'. 'In 2020' là dấu hiệu quá khứ."},
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"They ___ to school yesterday. (not/go)",opts:["didn't went","didn't go","don't go","weren't go"],ans:1,exp:"Phủ định: S + didn't + V nguyên thể. 'didn't go' là đúng. Sau 'didn't' động từ phải ở nguyên thể."},
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"___ you visit your grandparents last Sunday?",opts:["Do","Did","Were","Are"],ans:1,exp:"Câu hỏi quá khứ đơn với động từ thường: Did + S + V nguyên thể? 'Last Sunday' = dấu hiệu quá khứ."},
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"Quá khứ đơn dùng để diễn tả:",opts:["Hành động đang xảy ra","Hành động xảy ra và kết thúc trong quá khứ","Hành động sẽ xảy ra","Thói quen hiện tại"],ans:1,exp:"Quá khứ đơn diễn tả hành động đã xảy ra và kết thúc hoàn toàn trong quá khứ, có thời gian xác định."},
+        {part:"PART 2 – PAST SIMPLE KNOWLEDGE CHECK",type:"mc",q:"My parents ___ (be) happy when I passed the exam.",opts:["was","is","were","are"],ans:2,exp:"'My parents' là chủ ngữ số nhiều → dùng 'were'. Mệnh đề 'passed' cho thấy ngữ cảnh quá khứ."},
+
+        // PART 3 - Tense Detective (8)
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"She ___ (watch) TV every evening.",opts:["watches","is watching","watched","watch"],ans:0,exp:"'Every evening' = dấu hiệu Present Simple. She → watches (thêm -es)."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"Look! The children ___ (play) in the park.",opts:["play","played","are playing","plays"],ans:2,exp:"'Look!' = dấu hiệu Present Continuous. Hành động đang diễn ra → are playing."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"We ___ (visit) Ha Long Bay last summer.",opts:["visit","visited","are visiting","visits"],ans:1,exp:"'Last summer' = quá khứ → dùng Past Simple: visited."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"He ___ (not/like) coffee. He prefers tea.",opts:["doesn't like","didn't like","isn't liking","not likes"],ans:0,exp:"Câu nói về sở thích (sự thật) → Present Simple. He → doesn't like."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"I ___ (meet) my old friend at the supermarket yesterday.",opts:["meet","am meeting","met","meets"],ans:2,exp:"'Yesterday' = quá khứ đơn. 'Meet' bất quy tắc → met."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"Be quiet! The baby ___ (sleep) now.",opts:["sleeps","slept","is sleeping","sleep"],ans:2,exp:"'Now' + 'Be quiet!' = hành động đang xảy ra → Present Continuous: is sleeping."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"Mozart ___ (compose) more than 600 pieces of music.",opts:["composes","composed","is composing","compose"],ans:1,exp:"Mozart đã mất → sự kiện trong quá khứ → Past Simple: composed."},
+        {part:"PART 3 – TENSE DETECTIVE",type:"mc",q:"Water ___ (boil) at 100 degrees Celsius.",opts:["boils","boiled","is boiling","boil"],ans:0,exp:"Sự thật khoa học → Present Simple. Water (số ít) → boils."},
+
+        // PART 4 - Click-to-Build (5)
+        {part:"PART 4 – CLICK-TO-BUILD SENTENCE",type:"build",q:"Sắp xếp thành câu đúng (Past Simple):",words:["She","didn't","go","to","school","yesterday"],answer:"She didn't go to school yesterday",exp:"Câu phủ định quá khứ đơn: S + didn't + V nguyên thể. 'Yesterday' là trạng từ thời gian đặt cuối câu."},
+        {part:"PART 4 – CLICK-TO-BUILD SENTENCE",type:"build",q:"Sắp xếp thành câu đúng (Past Simple):",words:["Did","they","play","football","last","weekend","?"],answer:"Did they play football last weekend ?",exp:"Câu hỏi Yes/No: Did + S + V nguyên thể + ...? 'Last weekend' = dấu hiệu quá khứ."},
+        {part:"PART 4 – CLICK-TO-BUILD SENTENCE",type:"build",q:"Sắp xếp thành câu đúng (Past Simple):",words:["My","mother","cooked","dinner","two","hours","ago"],answer:"My mother cooked dinner two hours ago",exp:"Câu khẳng định: S + V-ed. 'Two hours ago' = dấu hiệu quá khứ, đặt cuối câu."},
+        {part:"PART 4 – CLICK-TO-BUILD SENTENCE",type:"build",q:"Sắp xếp thành câu đúng (Past Simple):",words:["He","was","not","at","home","last","night"],answer:"He was not at home last night",exp:"Phủ định với TO BE: S + was/were + not. 'He' → was not. 'Last night' = quá khứ."},
+        {part:"PART 4 – CLICK-TO-BUILD SENTENCE",type:"build",q:"Sắp xếp thành câu đúng (Past Simple):",words:["Where","did","you","go","yesterday","?"],answer:"Where did you go yesterday ?",exp:"Câu hỏi Wh-: Wh + did + S + V nguyên thể? 'Go' giữ nguyên thể sau 'did'."}
+    ];
+
+    let current = 0, score = 0, answered = false, builtWords = [];
+
+    function checkPassword() {
+        const pwd = document.getElementById('pwd-input').value;
+        const msg = document.getElementById('pwd-msg');
+        msg.style.display = 'block';
+        if (pwd === '1205') {
+            msg.textContent = '✅ Password Correct';
+            msg.style.color = '#16a34a';
+            playCorrect();
+        } else {
+            msg.textContent = '❌ Incorrect Password';
+            msg.style.color = '#dc2626';
+        }
+    }
+
+    function unlockQuiz() {
+        const pwd = document.getElementById('pwd-input').value;
+        const msg = document.getElementById('pwd-msg');
+        if (pwd === '1205') {
+            msg.style.display = 'none';
+            playCorrect();
+            setTimeout(()=>{
+                // Reset quiz state FIRST before rendering
+                current = 0;
+                score = 0;
+                answered = false;
+                builtWords = [];
+                
+                // HARD SWITCH: Hide cover screen completely from DOM flow
+                const coverScreen = document.getElementById('cover-screen');
+                coverScreen.classList.remove('active');
+                coverScreen.setAttribute('aria-hidden', 'true');
+                coverScreen.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none; position: absolute; width: 0; height: 0;';
+                
+                // Show quiz screen as only visible screen
+                const quizScreen = document.getElementById('quiz-screen');
+                quizScreen.classList.add('active');
+                quizScreen.setAttribute('aria-hidden', 'false');
+                quizScreen.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; z-index: 10; position: relative;';
+                
+                // Render first question after screen visibility is set
+                renderQuestion();
+            }, 800);
+        } else {
+            msg.style.display = 'block';
+            msg.textContent = '❌ Incorrect Password';
+            msg.style.color = '#dc2626';
+        }
+    }
+
+    function renderQuestion() {
+        answered = false;
+        const q = questions[current];
+        document.getElementById('q-number').textContent = `Câu ${current+1}/25`;
+        document.getElementById('q-score').textContent = `Điểm: ${score}/25`;
+        document.getElementById('progress-bar').style.width = `${((current)/25)*100}%`;
+        document.getElementById('part-label').textContent = q.part;
+        document.getElementById('feedback-area').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+
+        const area = document.getElementById('question-area');
+        area.innerHTML = '';
+
+        if (q.type === 'mc') {
+            area.innerHTML = `<p class="text-lg font-medium mb-4">${q.q}</p>
+                <div class="space-y-3">${q.opts.map((o,i)=>`<button class="w-full text-left px-4 py-3 rounded-xl border-2 border-gray-200 text-base font-medium hover:border-red-400 transition" onclick="selectAnswer(${i})">${['A','B','C','D'][i]}. ${o}</button>`).join('')}</div>`;
+        } else {
+            const shuffled = [...q.words].sort(()=>Math.random()-0.5);
+            area.innerHTML = `<p class="text-lg font-medium mb-4">${q.q}</p>
+                <div id="sentence-box" class="min-h-[48px] border-2 border-dashed border-gray-300 rounded-xl p-3 mb-4 flex flex-wrap gap-2"></div>
+                <div id="word-bank" class="flex flex-wrap gap-2 mb-4">${shuffled.map((w,i)=>`<button class="word-btn px-4 py-2 bg-red-100 text-red-800 rounded-lg font-medium text-base" onclick="pickWord(this,'${w.replace(/'/g,"\\'")}')">${w}</button>`).join('')}</div>
+                <div class="flex gap-3">
+                    <button class="flex-1 py-3 bg-red-600 text-white font-bold rounded-xl" onclick="checkBuild()">Check Answer</button>
+                    <button class="flex-1 py-3 bg-gray-200 text-gray-700 font-bold rounded-xl" onclick="resetBuild()">Reset</button>
+                </div>`;
+        }
+    }
+
+    function selectAnswer(i) {
+        if (answered) return;
+        answered = true;
+        const q = questions[current];
+        const btns = document.querySelectorAll('#question-area button');
+        btns.forEach((b,idx)=>{
+            b.disabled = true;
+            if (idx === q.ans) b.style.borderColor = '#16a34a';
+            if (idx === i && i !== q.ans) b.style.borderColor = '#dc2626';
+        });
+        if (i === q.ans) { score++; showFeedback(true, q.exp); playCorrect(); }
+        else { showFeedback(false, q.exp); playWrong(); }
+    }
+
+    function pickWord(btn, word) {
+        if (answered) return;
+        btn.style.opacity = '0.4';
+        btn.style.transform = 'scale(0.9)';
+        btn.disabled = true;
+        builtWords.push(word);
+        const box = document.getElementById('sentence-box');
+        const span = document.createElement('span');
+        span.style.cssText = 'padding: 0.75rem; background: #dc2626; color: white; border-radius: 0.5rem; font-weight: 500; display: inline-block;';
+        span.textContent = word;
+        box.appendChild(span);
+    }
+
+    function resetBuild() {
+        if (answered) return;
+        builtWords = [];
+        document.getElementById('sentence-box').innerHTML = '';
+        document.querySelectorAll('.word-btn').forEach(b=>{b.style.opacity = '1'; b.style.transform = 'scale(1)'; b.disabled=false;});
+    }
+
+    function checkBuild() {
+        if (answered) return;
+        answered = true;
+        const q = questions[current];
+        const userAns = builtWords.join(' ');
+        if (userAns === q.answer) { score++; showFeedback(true, q.exp); playCorrect(); }
+        else { showFeedback(false, q.exp + `<br><b>Đáp án đúng:</b> ${q.answer}`); playWrong(); }
+    }
+
+    function showFeedback(correct, exp) {
+        const fb = document.getElementById('feedback-area');
+        fb.style.display = 'block';
+        fb.innerHTML = `<div class="p-4 rounded-xl" style="background: ${correct?'#ecfdf5':'#fef2f2'}; border: 1px solid ${correct?'#6ee7b7':'#fecaca'};">
+            <p class="font-bold text-lg" style="color: ${correct?'#059669':'#dc2626'}">${correct?'✅ Chính xác':'❌ Chưa chính xác'}</p>
+            <div class="mt-2 text-gray-700 text-sm"><b>Giải thích:</b> ${exp}</div></div>`;
+        document.getElementById('next-btn').style.display = 'block';
+        document.getElementById('q-score').textContent = `Điểm: ${score}/25`;
+    }
+
+    function nextQuestion() {
+        current++;
+        builtWords = [];
+        if (current >= 25) showResult();
+        else renderQuestion();
+    }
+
+    function showResult() {
+        // HARD SWITCH: Hide quiz screen completely
+        const quizScreen = document.getElementById('quiz-screen');
+        quizScreen.classList.remove('active');
+        quizScreen.setAttribute('aria-hidden', 'true');
+        quizScreen.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none; position: absolute; width: 0; height: 0;';
+        
+        // Show result screen as only visible screen
+        const resultScreen = document.getElementById('result-screen');
+        resultScreen.classList.add('active');
+        resultScreen.setAttribute('aria-hidden', 'false');
+        resultScreen.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; z-index: 10; position: relative;';
+        
+        playCelebration();
+        const pct = Math.round((score/25)*100);
+        let rating = '';
+        if (pct >= 90) rating = '🏆 Xuất sắc!';
+        else if (pct >= 80) rating = '🌟 Rất tốt!';
+        else if (pct >= 65) rating = '👍 Tốt!';
+        else if (pct >= 50) rating = '💪 Cần cố gắng thêm';
+        else rating = '📚 Ôn tập lại kiến thức thì Quá khứ đơn';
+        document.getElementById('result-details').innerHTML = `
+            <p>✅ Số câu đúng: <b>${score}</b></p>
+            <p>❌ Số câu sai: <b>${25-score}</b></p>
+            <p>📊 Tổng điểm: <b>${score}/25</b></p>
+            <p>📈 Tỷ lệ: <b>${pct}%</b></p>`;
+        document.getElementById('result-rating').textContent = rating;
+        document.getElementById('progress-bar').style.width = '100%';
+    }
+
+    function resetQuiz() {
+        // HARD SWITCH: Hide result screen completely
+        const resultScreen = document.getElementById('result-screen');
+        resultScreen.classList.remove('active');
+        resultScreen.setAttribute('aria-hidden', 'true');
+        resultScreen.style.cssText = 'display: none !important; visibility: hidden !important; opacity: 0 !important; pointer-events: none; position: absolute; width: 0; height: 0;';
+        
+        // Show cover screen as only visible screen
+        const coverScreen = document.getElementById('cover-screen');
+        coverScreen.classList.add('active');
+        coverScreen.setAttribute('aria-hidden', 'false');
+        coverScreen.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; z-index: 10; position: relative;';
+        
+        document.getElementById('pwd-input').value = '';
+        document.getElementById('pwd-msg').style.display = 'none';
+        current = 0;
+        score = 0;
+        builtWords = [];
+        answered = false;
+    }
+
+    // Allow Enter key on password
+    document.getElementById('pwd-input').addEventListener('keydown', e => { if(e.key==='Enter'){e.preventDefault();checkPassword();}});
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a114c42eb424fe22',t:'MTc4MjM5ODgzNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
