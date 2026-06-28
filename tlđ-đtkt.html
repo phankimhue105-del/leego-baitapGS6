@@ -1,0 +1,494 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Future Simple &amp; Modal Verbs Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+        * { font-family: 'Libre Franklin', Arial, Helvetica, Verdana, sans-serif !important; }
+        body { margin: 0; padding: 60px 0; }
+        .fixed-header { position: fixed; top: 0; left: 0; right: 0; z-index: 9999; background: #1d4ed8 !important; color: #ffffff !important; }
+        .fixed-header * { color: #ffffff !important; }
+        .fixed-footer { position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999; background: #1d4ed8 !important; color: #ffffff !important; }
+        .fixed-footer * { color: #ffffff !important; }
+        .page { display: none; }
+        .page.active { display: block; }
+        .fade-in { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .btn-bounce:active { transform: scale(0.95); }
+        .btn-bounce { transition: transform 0.1s; }
+        .word-chip { cursor: pointer; transition: all 0.2s; }
+        .word-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); }
+        .option-btn { transition: all 0.2s; }
+        .option-btn:hover:not(:disabled) { transform: translateX(4px); }
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.8; }
+        .progress-fill { transition: width 0.4s ease; }
+        #start-btn { color: #ffffff !important; }
+        .canva-button { color: #ffffff !important; }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen bg-gray-50">
+  <!-- HEADER -->
+  <header data-template-id="header-bar" class="canva-header fixed-header px-4 py-2 flex justify-between items-center text-white text-xs sm:text-sm">
+   <span data-template-id="header-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="header-right" class="canva-text">TLĐ &amp; ĐTKT</span>
+  </header><!-- COVER PAGE -->
+  <div id="cover-page" class="page active">
+   <div class="flex flex-col items-center justify-center min-h-[calc(100*min(var(--vh,1vh),1vh)-120px)] px-4 fade-in">
+    <div class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 max-w-lg w-full text-center">
+     <h1 data-template-id="cover-title" class="canva-text text-2xl sm:text-4xl font-extrabold text-blue-700 mb-4">FUTURE SIMPLE &amp; MODAL VERBS</h1>
+     <p data-template-id="cover-subtitle" class="canva-text text-gray-600 mb-6">Enter the password to start the quiz</p>
+     <div class="mb-4">
+      <label data-template-id="pw-label" class="canva-text block text-sm font-medium text-gray-700 mb-1" for="pw-input">Password:</label> <input id="pw-input" type="password" class="w-full border-2 border-gray-300 rounded-lg px-4 py-3 text-center text-lg focus:border-blue-500 focus:outline-none" maxlength="10">
+     </div>
+     <p id="pw-error" class="text-red-500 font-semibold mb-3 hidden">❌ Incorrect password!</p><button id="start-btn" data-template-id="start-button" class="canva-button btn-bounce w-full py-4 rounded-xl text-white font-bold text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700" type="button" onclick="startQuiz()">▶ Start Quiz</button>
+    </div>
+   </div>
+  </div><!-- QUIZ PAGE -->
+  <div id="quiz-page" class="page">
+   <div class="max-w-2xl mx-auto px-4 py-6 fade-in">
+    <!-- Progress -->
+    <div class="mb-4">
+     <div class="flex justify-between text-sm text-gray-600 mb-1">
+      <span id="q-counter">Question 1/20</span> <span id="timer-display">⏱ 0:00</span>
+     </div>
+     <div class="w-full bg-gray-200 rounded-full h-3">
+      <div id="progress-bar" class="progress-fill h-3 rounded-full bg-gradient-to-r from-blue-500 to-orange-400" style="width:5%"></div>
+     </div>
+    </div><!-- Question Area -->
+    <div id="question-area" class="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
+     <p id="q-section" class="text-xs font-semibold text-orange-500 uppercase mb-2"></p>
+     <h2 id="q-text" class="text-lg sm:text-xl font-bold text-gray-800 mb-5"></h2>
+     <div id="options-area"></div>
+     <div id="build-area" class="hidden">
+      <div id="answer-zone" class="min-h-[48px] border-2 border-dashed border-blue-300 rounded-lg p-3 mb-4 flex flex-wrap gap-2 bg-blue-50"></div>
+      <div id="word-bank" class="flex flex-wrap gap-2 mb-4"></div>
+      <div class="flex gap-2">
+       <button id="undo-btn" class="btn-bounce px-4 py-2 bg-gray-200 rounded-lg font-semibold text-gray-700 hover:bg-gray-300" onclick="undoWord()">↩ Undo</button> <button id="check-btn" class="btn-bounce px-4 py-2 bg-orange-500 text-white rounded-lg font-semibold hover:bg-orange-600" onclick="checkBuild()">✓ Check</button>
+      </div>
+     </div>
+     <div id="feedback" class="hidden mt-5 p-4 rounded-xl"></div>
+     <div id="explanation" class="hidden mt-4 p-4 bg-gray-50 rounded-xl text-sm text-gray-700 leading-relaxed"></div><button id="next-btn" class="hidden btn-bounce mt-5 w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700" onclick="nextQuestion()">➡ Next Question</button>
+    </div>
+   </div>
+  </div><!-- RESULTS PAGE -->
+  <div id="results-page" class="page">
+   <div class="flex flex-col items-center justify-center min-h-[calc(100*min(var(--vh,1vh),1vh)-120px)] px-4 fade-in">
+    <div class="bg-white rounded-2xl shadow-xl p-8 sm:p-12 max-w-lg w-full text-center">
+     <h2 data-template-id="result-title" class="canva-text text-3xl font-extrabold text-blue-700 mb-2">🎉 Quiz Completed!</h2>
+     <div id="score-display" class="text-5xl font-extrabold text-orange-500 my-4"></div>
+     <div id="score-details" class="text-gray-600 mb-4"></div>
+     <div id="score-comment" class="text-xl font-bold mb-6"></div><button data-template-id="retry-button" class="canva-button btn-bounce w-full py-4 rounded-xl text-white font-bold text-lg bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700" type="button" onclick="resetQuiz()">🔄 Làm lại</button>
+    </div>
+   </div>
+  </div><!-- FOOTER -->
+  <footer data-template-id="footer-bar" class="canva-footer fixed-footer px-4 py-2 flex justify-between items-center text-white text-xs sm:text-sm">
+   <span data-template-id="footer-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="footer-right" class="canva-text">TLĐ &amp; ĐTKT</span>
+  </footer>
+  <script>
+    // Quiz Data
+    const questions = [
+        // PART 1: Future Simple (5 questions)
+        {
+            section: "Part 1: Future Simple",
+            type: "mc",
+            q: "It ______ rain tomorrow.",
+            options: ["should", "must", "might", "mustn't"],
+            answer: 2,
+            explanation: "<b>Đáp án: might</b><br><b>Dịch:</b> Ngày mai có thể trời sẽ mưa.<br><b>Giải thích:</b> Động từ khuyết thiếu might dùng để diễn tả khả năng có thể xảy ra trong tương lai, nhưng chưa chắc chắn.<br>might + V-inf = có thể...<br>should = nên (đưa ra lời khuyên)<br>must = phải (bắt buộc)<br>mustn't = không được phép<br>Vì câu muốn diễn tả khả năng trời mưa vào ngày mai, đáp án đúng là might."
+        },
+        {
+            section: "Part 1: Future Simple",
+            type: "mc",
+            q: "She ______ 18 years old next month.",
+            options: ["is", "will be", "is being", "was"],
+            answer: 1,
+            explanation: "<b>Đáp án: will be</b><br><b>Dịch:</b> Cô ấy sẽ 18 tuổi vào tháng tới.<br><b>Giải thích:</b> 'Next month' là dấu hiệu tương lai đơn. Công thức: S + will + V(nguyên thể).<br><b>Mẹo:</b> Thấy next week/month/year → Future Simple."
+        },
+        {
+            section: "Part 1: Future Simple",
+            type: "mc",
+            q: "Chọn câu đúng về cách dùng phủ định của thì Tương lai đơn.",
+            options: ["He will not go.", "He does not go.", "He is not going.", "He did not go."],
+            answer: 0,
+            explanation: "<b>Đáp án: He will not go.</b><br><b>Dịch:</b> Câu nào là dạng phủ định của thì tương lai đơn?<br><b>Giải thích:</b> Công thức phủ định: S + will not (won't) + V. Các đáp án khác thuộc hiện tại đơn, hiện tại tiếp diễn, quá khứ đơn."
+        },
+        {
+            section: "Part 1: Future Simple",
+            type: "mc",
+            q: "They probably ______ the match. The other team is much stronger.",
+            options: ["won't win", "don't win", "aren't winning", "didn't win"],
+            answer: 0,
+            explanation: "<b>Đáp án: won't win</b><br><b>Dịch:</b> Họ có lẽ sẽ không thắng trận đấu. Đội kia mạnh hơn nhiều.<br><b>Giải thích:</b> 'Probably' + dự đoán tương lai → dùng will/won't. Won't = will not.<br><b>Mẹo:</b> Probably, perhaps, maybe + will/won't."
+        },
+        {
+            section: "Part 1: Future Simple",
+            type: "mc",
+            q: "\"______ you help me with my homework?\" — \"Sure!\"",
+            options: ["Do", "Are", "Will", "Did"],
+            answer: 2,
+            explanation: "<b>Đáp án: Will</b><br><b>Dịch:</b> Bạn sẽ giúp tôi làm bài tập chứ? — Chắc chắn rồi!<br><b>Giải thích:</b> Dùng 'Will you...?' để đưa ra lời yêu cầu hoặc đề nghị. Đây là chức năng 'request' của will.<br><b>Mẹo:</b> Will you...? = yêu cầu/đề nghị lịch sự."
+        },
+        // PART 2: Modal Verbs (10 questions)
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "You ______ wear a helmet when riding a motorbike. It's the law.",
+            options: ["should", "might", "must", "shouldn't"],
+            answer: 2,
+            explanation: "<b>Đáp án: must</b><br><b>Dịch:</b> Bạn phải đội mũ bảo hiểm khi đi xe máy. Đó là luật.<br><b>Giải thích:</b> 'It's the law' = luật pháp → bắt buộc → dùng <b>must</b>. Should chỉ là lời khuyên, might là khả năng.<br><b>Mẹo:</b> Luật/quy định bắt buộc → must."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "Students ______ cheat in exams. It is strictly prohibited.",
+            options: ["mustn't", "shouldn't", "might not", "won't"],
+            answer: 0,
+            explanation: "<b>Đáp án: mustn't</b><br><b>Dịch:</b> Học sinh không được gian lận trong kỳ thi. Điều đó bị nghiêm cấm.<br><b>Giải thích:</b> 'Strictly prohibited' = cấm → dùng <b>mustn't</b> (cấm đoán). Shouldn't = không nên (lời khuyên, nhẹ hơn).<br><b>Mẹo:</b> Cấm/prohibited/forbidden → mustn't."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "It ______ rain this afternoon. I'm not sure.",
+            options: ["will", "must", "might", "should"],
+            answer: 2,
+            explanation: "<b>Đáp án: might</b><br><b>Dịch:</b> Chiều nay có thể mưa. Tôi không chắc.<br><b>Giải thích:</b> 'I'm not sure' = không chắc chắn → dùng <b>might</b> (có thể, khả năng). Must = chắc chắn/bắt buộc, should = nên.<br><b>Mẹo:</b> Không chắc chắn (not sure, perhaps, maybe) → might."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "You look very tired. You ______ go to bed early tonight.",
+            options: ["must", "might", "mustn't", "should"],
+            answer: 3,
+            explanation: "<b>Đáp án: should</b><br><b>Dịch:</b> Bạn trông rất mệt. Bạn nên đi ngủ sớm tối nay.<br><b>Giải thích:</b> Đây là lời khuyên (advice) dựa trên tình trạng của người nghe → dùng <b>should</b>. Must = bắt buộc (quá mạnh cho ngữ cảnh này).<br><b>Mẹo:</b> Lời khuyên nhẹ nhàng, tốt cho sức khỏe → should."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "You ______ eat too much fast food. It's bad for your health.",
+            options: ["should", "shouldn't", "mustn't", "might"],
+            answer: 1,
+            explanation: "<b>Đáp án: shouldn't</b><br><b>Dịch:</b> Bạn không nên ăn quá nhiều đồ ăn nhanh. Nó không tốt cho sức khỏe.<br><b>Giải thích:</b> 'Bad for health' → lời khuyên không nên làm → <b>shouldn't</b>. Mustn't = cấm (quá mạnh cho lời khuyên sức khỏe).<br><b>Mẹo:</b> Lời khuyên 'không nên' → shouldn't."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "Visitors ______ touch the paintings in the museum. It's a strict rule.",
+            options: ["shouldn't", "mustn't", "might not", "won't"],
+            answer: 1,
+            explanation: "<b>Đáp án: mustn't</b><br><b>Dịch:</b> Khách tham quan không được chạm vào tranh trong bảo tàng. Đó là quy định nghiêm ngặt.<br><b>Giải thích:</b> 'Strict rule' = quy định nghiêm ngặt → cấm → <b>mustn't</b>. Shouldn't chỉ là lời khuyên, không đủ mạnh.<br><b>Mẹo:</b> Quy định/nội quy nghiêm ngặt → mustn't."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "We ______ go to Da Lat for our holiday, but we haven't decided yet.",
+            options: ["will", "must", "should", "might"],
+            answer: 3,
+            explanation: "<b>Đáp án: might</b><br><b>Dịch:</b> Chúng tôi có thể đi Đà Lạt cho kỳ nghỉ, nhưng chưa quyết định.<br><b>Giải thích:</b> 'Haven't decided yet' = chưa chắc chắn → dùng <b>might</b> (khả năng, có thể). Will = chắc chắn, must = bắt buộc.<br><b>Mẹo:</b> Chưa quyết định → might."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "Your little brother wants to cross the busy road alone. You ______ help him.",
+            options: ["should", "shouldn't", "might", "won't"],
+            answer: 0,
+            explanation: "<b>Đáp án: should</b><br><b>Dịch:</b> Em trai nhỏ của bạn muốn tự băng qua con đường đông xe. Bạn nên giúp em.<br><b>Giải thích:</b> Động từ khuyết thiếu should được dùng để đưa ra lời khuyên hoặc điều nên làm. Trong tình huống này, giúp em nhỏ sang đường là lời khuyên hợp lý và an toàn.<br>should = nên<br>shouldn't = không nên<br>might = có thể<br>won't = sẽ không<br>Đáp án đúng là A. should."
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "It's very cold outside. You ______ wear a warm coat.",
+            options: ["shouldn't", "should", "might", "won't"],
+            answer: 1,
+            explanation: "<b>Đáp án: should</b><br><b>Dịch:</b> Bên ngoài rất lạnh. Bạn nên mặc một chiếc áo khoác ấm.<br><b>Giải thích:</b> Động từ should dùng để đưa ra lời khuyên. Trong tình huống thời tiết lạnh, lời khuyên hợp lý là mặc áo ấm.<br>should = nên<br>shouldn't = không nên<br>might = có thể<br>won't = sẽ không"
+        },
+        {
+            section: "Part 2: Modal Verbs",
+            type: "mc",
+            q: "You ______ drink enough water every day. It's good advice from doctors.",
+            options: ["must", "might", "mustn't", "should"],
+            answer: 3,
+            explanation: "<b>Đáp án: should</b><br><b>Dịch:</b> Bạn nên uống đủ nước mỗi ngày. Đó là lời khuyên tốt từ bác sĩ.<br><b>Giải thích:</b> 'Good advice from doctors' = lời khuyên → <b>should</b>. Must = bắt buộc (quá mạnh cho lời khuyên sức khỏe thông thường).<br><b>Mẹo:</b> Advice/lời khuyên → should."
+        },
+        // PART 3: Click-to-Build (5 questions)
+        {
+            section: "Part 3: Build the Sentence",
+            type: "build",
+            words: ["You", "should", "eat", "more", "vegetables", "."],
+            answer: "You should eat more vegetables.",
+            explanation: "<b>Đáp án: You should eat more vegetables.</b><br><b>Dịch:</b> Bạn nên ăn nhiều rau hơn.<br><b>Giải thích:</b> Cấu trúc: S + should + V(nguyên thể). 'Should' dùng để khuyên ai đó làm gì.<br><b>Mẹo:</b> Should + V nguyên thể, không chia."
+        },
+        {
+            section: "Part 3: Build the Sentence",
+            type: "build",
+            words: ["We", "must", "wear", "uniforms", "."],
+            answer: "We must wear uniforms.",
+            explanation: "<b>Đáp án: We must wear uniforms.</b><br><b>Dịch:</b> Chúng tôi phải mặc đồng phục.<br><b>Giải thích:</b> Must + V(nguyên thể) = bắt buộc phải. Đây là nội quy trường học.<br><b>Mẹo:</b> Nội quy/quy định → must."
+        },
+        {
+            section: "Part 3: Build the Sentence",
+            type: "build",
+            words: ["It", "might", "rain", "tomorrow", "."],
+            answer: "It might rain tomorrow.",
+            explanation: "<b>Đáp án: It might rain tomorrow.</b><br><b>Dịch:</b> Ngày mai có thể mưa.<br><b>Giải thích:</b> Might + V = có thể (không chắc chắn). Dùng khi dự đoán nhưng không chắc.<br><b>Mẹo:</b> Không chắc chắn về tương lai → might."
+        },
+        {
+            section: "Part 3: Build the Sentence",
+            type: "build",
+            words: ["She", "won't", "come", "today", "."],
+            answer: "She won't come today.",
+            explanation: "<b>Đáp án: She won't come today.</b><br><b>Dịch:</b> Cô ấy sẽ không đến hôm nay.<br><b>Giải thích:</b> Won't = will not. Phủ định tương lai đơn: S + won't + V.<br><b>Mẹo:</b> Won't = will not, dùng cho phủ định tương lai."
+        },
+        {
+            section: "Part 3: Build the Sentence",
+            type: "build",
+            words: ["Students", "mustn't", "use", "phones", "in", "class", "."],
+            answer: "Students mustn't use phones in class.",
+            explanation: "<b>Đáp án: Students mustn't use phones in class.</b><br><b>Dịch:</b> Học sinh không được sử dụng điện thoại trong lớp.<br><b>Giải thích:</b> Mustn't = không được phép (cấm). Đây là nội quy lớp học.<br><b>Mẹo:</b> Nội quy cấm → mustn't + V nguyên thể."
+        }
+    ];
+
+    let currentQ = 0, score = 0, startTime = null, timerInterval = null;
+    let buildSelected = [];
+    let wordBankOrder = []; // Track original word order for current question
+    let shuffledOrder = {}; // Store shuffled word indices per question
+
+    function shuffleWords(qIdx) {
+        // Shuffle words for build-type questions (Q16-Q20, indices 15-19)
+        if (qIdx >= 15 && qIdx < 20) {
+            const words = questions[qIdx].words;
+            const indices = words.map((_, i) => i);
+            for (let i = indices.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [indices[i], indices[j]] = [indices[j], indices[i]];
+            }
+            shuffledOrder[qIdx] = indices;
+        }
+    }
+
+    function showPage(id) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+    }
+
+    function startQuiz() {
+        const pw = document.getElementById('pw-input').value;
+        if (pw !== '1205') {
+            document.getElementById('pw-error').classList.remove('hidden');
+            return;
+        }
+        document.getElementById('pw-error').classList.add('hidden');
+        currentQ = 0; score = 0;
+        startTime = Date.now();
+        timerInterval = setInterval(updateTimer, 1000);
+        showPage('quiz-page');
+        renderQuestion();
+    }
+
+    function updateTimer() {
+        const s = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(s / 60);
+        document.getElementById('timer-display').textContent = '⏱ ' + m + ':' + String(s % 60).padStart(2, '0');
+    }
+
+    function renderQuestion() {
+        const qData = questions[currentQ];
+        document.getElementById('q-counter').textContent = 'Question ' + (currentQ + 1) + '/20';
+        document.getElementById('progress-bar').style.width = ((currentQ + 1) / 20 * 100) + '%';
+        document.getElementById('q-section').textContent = qData.section;
+        document.getElementById('q-text').textContent = qData.q || '';
+        document.getElementById('feedback').classList.add('hidden');
+        document.getElementById('explanation').classList.add('hidden');
+        document.getElementById('next-btn').classList.add('hidden');
+
+        const optArea = document.getElementById('options-area');
+        const buildArea = document.getElementById('build-area');
+        optArea.textContent = '';
+        buildArea.classList.add('hidden');
+
+        if (qData.type === 'mc') {
+            qData.options.forEach((opt, i) => {
+                const btn = document.createElement('button');
+                btn.className = 'option-btn block w-full text-left p-3 mb-2 rounded-lg border-2 border-gray-200 hover:border-blue-400 hover:bg-blue-50 font-medium';
+                btn.textContent = String.fromCharCode(65 + i) + '. ' + opt;
+                btn.onclick = () => selectOption(i);
+                optArea.appendChild(btn);
+            });
+        } else {
+            buildArea.classList.remove('hidden');
+            document.getElementById('q-text').textContent = 'Sắp xếp các từ thành câu hoàn chỉnh:';
+            buildSelected = [];
+            shuffleWords(currentQ);
+            wordBankOrder = shuffledOrder[currentQ] || qData.words.map((w, i) => i);
+            renderBuild(qData);
+        }
+
+        document.getElementById('question-area').classList.add('fade-in');
+        setTimeout(() => document.getElementById('question-area').classList.remove('fade-in'), 400);
+    }
+
+    function renderBuild(qData) {
+        const bank = document.getElementById('word-bank');
+        const zone = document.getElementById('answer-zone');
+        bank.textContent = '';
+        zone.textContent = '';
+
+        // Render word bank in original order, skipping selected words
+        wordBankOrder.forEach(idx => {
+            if (buildSelected.includes(idx)) return; // Skip if already selected
+            const chip = document.createElement('span');
+            chip.className = 'word-chip inline-block px-3 py-2 bg-orange-100 text-orange-800 rounded-lg font-semibold cursor-pointer';
+            chip.textContent = qData.words[idx];
+            chip.dataset.idx = idx;
+            chip.onclick = () => pickWord(idx);
+            bank.appendChild(chip);
+        });
+
+        // Render selected words in answer zone in selection order
+        buildSelected.forEach(idx => {
+            const chip = document.createElement('span');
+            chip.className = 'inline-block px-3 py-2 bg-blue-200 text-blue-900 rounded-lg font-semibold';
+            chip.textContent = qData.words[idx];
+            zone.appendChild(chip);
+        });
+    }
+
+    function pickWord(idx) {
+        buildSelected.push(idx);
+        renderBuild(questions[currentQ]);
+    }
+
+    function undoWord() {
+        if (buildSelected.length === 0) return;
+        buildSelected.pop();
+        renderBuild(questions[currentQ]);
+    }
+
+    function checkBuild() {
+        const built = buildSelected.map(idx => questions[currentQ].words[idx]);
+        // Join and normalize: no space before . or ?
+        let sentence = built.join(' ').replace(/\s+([.?!])/g, '$1').trim();
+        const correct = questions[currentQ].answer;
+
+        if (sentence === correct) {
+            score++;
+            showFeedback(true);
+        } else {
+            showFeedback(false);
+        }
+        document.getElementById('check-btn').disabled = true;
+        document.getElementById('undo-btn').disabled = true;
+        document.querySelectorAll('#word-bank .word-chip').forEach(c => c.onclick = null);
+    }
+
+    function selectOption(idx) {
+        const qData = questions[currentQ];
+        const btns = document.querySelectorAll('#options-area .option-btn');
+        btns.forEach((b, i) => {
+            b.disabled = true;
+            if (i === qData.answer) b.classList.add('bg-green-100', 'border-green-500', 'text-green-800');
+            else if (i === idx && idx !== qData.answer) b.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+        });
+        if (idx === qData.answer) { score++; showFeedback(true); }
+        else showFeedback(false);
+    }
+
+    function showFeedback(correct) {
+        const fb = document.getElementById('feedback');
+        fb.classList.remove('hidden');
+        if (correct) {
+            fb.className = 'mt-5 p-4 rounded-xl bg-green-50 border border-green-300 text-green-800 font-bold';
+            fb.textContent = '✅ Chính xác!';
+            playSound(true);
+        } else {
+            fb.className = 'mt-5 p-4 rounded-xl bg-red-50 border border-red-300 text-red-800 font-bold';
+            fb.textContent = '❌ Chưa chính xác!';
+            playSound(false);
+        }
+        const exp = document.getElementById('explanation');
+        exp.classList.remove('hidden');
+        exp.innerHTML = questions[currentQ].explanation;
+        document.getElementById('next-btn').classList.remove('hidden');
+    }
+
+    function nextQuestion() {
+        currentQ++;
+        if (currentQ >= 20) { showResults(); return; }
+        renderQuestion();
+        document.getElementById('check-btn').disabled = false;
+        document.getElementById('undo-btn').disabled = false;
+    }
+
+    function showResults() {
+        clearInterval(timerInterval);
+        const elapsed = Math.floor((Date.now() - startTime) / 1000);
+        const m = Math.floor(elapsed / 60), s = elapsed % 60;
+        const pct = Math.round(score / 20 * 100);
+        const wrong = 20 - score;
+
+        document.getElementById('score-display').textContent = score + '/20';
+        document.getElementById('score-details').innerHTML = '✅ Đúng: ' + score + ' | ❌ Sai: ' + wrong + ' | 📊 ' + pct + '%<br>⏱ Thời gian: ' + m + ':' + String(s).padStart(2, '0');
+
+        let comment = '';
+        if (score >= 18) comment = '🌟 Excellent!';
+        else if (score >= 15) comment = '🎉 Very Good!';
+        else if (score >= 12) comment = '👍 Good!';
+        else if (score >= 8) comment = '😊 Keep Practising!';
+        else comment = '💪 Review the grammar and try again!';
+        document.getElementById('score-comment').textContent = comment;
+
+        showPage('results-page');
+        playVictorySound();
+    }
+
+    function resetQuiz() {
+        clearInterval(timerInterval);
+        document.getElementById('pw-input').value = '';
+        showPage('cover-page');
+    }
+
+    // Web Audio API sounds
+    function playSound(correct) {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            if (correct) {
+                osc.type = 'sine'; osc.frequency.setValueAtTime(523, ctx.currentTime);
+                osc.frequency.setValueAtTime(659, ctx.currentTime + 0.15);
+                osc.frequency.setValueAtTime(784, ctx.currentTime + 0.3);
+            } else {
+                osc.type = 'sawtooth'; osc.frequency.setValueAtTime(200, ctx.currentTime);
+                osc.frequency.setValueAtTime(150, ctx.currentTime + 0.2);
+            }
+            gain.gain.setValueAtTime(0.3, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.5);
+            osc.start(); osc.stop(ctx.currentTime + 0.5);
+        } catch(e) {}
+    }
+
+    function playVictorySound() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const notes = [523, 587, 659, 698, 784, 880, 988, 1047];
+            notes.forEach((f, i) => {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                osc.type = 'sine'; osc.frequency.value = f;
+                gain.gain.setValueAtTime(0.2, ctx.currentTime + i * 0.2);
+                gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.2 + 0.3);
+                osc.start(ctx.currentTime + i * 0.2);
+                osc.stop(ctx.currentTime + i * 0.2 + 0.3);
+            });
+        } catch(e) {}
+    }
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a12e031440a886fb',t:'MTc4MjY2MzU1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
