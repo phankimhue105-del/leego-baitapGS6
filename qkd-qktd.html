@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="vi">
+ <head><script src="/_sdk/telemetry_sdk.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Past Simple &amp; Past Continuous Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Libre+Franklin:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/editing_sdk.js"></script>
+  <style>
+:root{--blue:#1a56db;--blue-light:#3b82f6;--orange:#f97316;--orange-light:#fb923c;--dark:#1e293b;--gray:#64748b}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Libre Franklin',Arial,sans-serif;background:#f0f4ff;min-height:calc(100 * min(var(--vh,1vh),1vh));padding-top:52px;padding-bottom:48px}
+.header-bar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:9999;font-size:13px;font-weight:500}
+.footer-bar{position:fixed;bottom:0;left:0;right:0;height:48px;background:var(--dark);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 16px;z-index:9999;font-size:12px}
+.page{display:none;width:100%;max-width:720px;margin:0 auto;padding:24px 16px;animation:fadeIn .4s}
+.page.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.cover-title{font-size:clamp(28px,5vw,42px);font-weight:800;color:var(--blue);text-align:center;margin-bottom:8px}
+.cover-sub{font-size:clamp(14px,2.5vw,18px);color:var(--gray);text-align:center;margin-bottom:24px}
+.pw-input{width:100%;max-width:280px;padding:12px 16px;border:2px solid #cbd5e1;border-radius:10px;font-size:16px;text-align:center;outline:none;transition:.2s}
+.pw-input:focus{border-color:var(--blue)}
+.btn{display:inline-flex;align-items:center;justify-content:center;padding:14px 32px;border:none;border-radius:12px;font-size:17px;font-weight:700;cursor:pointer;transition:transform .15s,box-shadow .15s}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.15)}
+.btn:active{transform:scale(.96)}
+.btn-primary{background:linear-gradient(135deg,var(--orange),var(--orange-light));color:#fff}
+.btn-next{background:linear-gradient(135deg,var(--blue),var(--blue-light));color:#fff;margin-top:16px}
+.btn-retry{background:linear-gradient(135deg,var(--orange),#ef4444);color:#fff;font-size:20px;padding:16px 40px}
+.error-msg{color:#ef4444;font-weight:600;margin-top:12px;min-height:24px}
+.progress-wrap{width:100%;height:8px;background:#e2e8f0;border-radius:8px;margin-bottom:16px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--orange));transition:width .4s;border-radius:8px}
+.q-number{font-size:13px;color:var(--gray);font-weight:600;margin-bottom:4px}
+.q-section{font-size:12px;color:var(--orange);font-weight:700;text-transform:uppercase;margin-bottom:8px}
+.q-text{font-size:17px;font-weight:600;color:var(--dark);margin-bottom:16px;line-height:1.5}
+.options{display:flex;flex-direction:column;gap:10px}
+.opt-btn{width:100%;text-align:left;padding:14px 18px;border:2px solid #e2e8f0;border-radius:10px;background:#fff;font-size:15px;cursor:pointer;transition:.2s;font-weight:500}
+.opt-btn:hover:not(.locked){border-color:var(--blue-light);background:#eff6ff}
+.opt-btn.selected{border-color:var(--blue);background:#dbeafe}
+.opt-btn.correct{border-color:#16a34a;background:#dcfce7;color:#166534}
+.opt-btn.wrong{border-color:#ef4444;background:#fef2f2;color:#991b1b}
+.opt-btn.locked{cursor:default}
+.explain-box{margin-top:16px;padding:16px;background:#fffbeb;border:1px solid #fde68a;border-radius:10px;font-size:14px;line-height:1.6;color:#92400e}
+.explain-box strong{color:#b45309}
+/* Click to build */
+.word-bank{display:flex;flex-wrap:wrap;gap:8px;min-height:44px;margin-bottom:16px}
+.word-chip{padding:10px 14px;background:#fff;border:2px solid #cbd5e1;border-radius:8px;font-size:15px;font-weight:500;cursor:pointer;transition:.15s}
+.word-chip:hover{border-color:var(--blue);background:#eff6ff}
+.word-chip.used{display:none}
+.answer-area{min-height:52px;padding:12px 16px;border:2px dashed #94a3b8;border-radius:10px;background:#fff;display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:12px}
+.answer-chip{padding:8px 12px;background:var(--blue);color:#fff;border-radius:6px;font-size:14px;font-weight:500}
+.btn-sm{padding:10px 20px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;margin-right:8px}
+.btn-undo{background:#e2e8f0;color:var(--dark)}
+.btn-check{background:var(--orange);color:#fff}
+/* Result */
+.result-title{font-size:32px;text-align:center;font-weight:800;margin-bottom:8px}
+.result-score{font-size:48px;text-align:center;font-weight:800;color:var(--blue);margin:16px 0}
+.result-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:16px 0}
+.result-card{padding:16px;background:#fff;border-radius:10px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.result-card .val{font-size:24px;font-weight:700;color:var(--dark)}
+.result-card .lbl{font-size:12px;color:var(--gray)}
+.result-comment{text-align:center;font-size:20px;font-weight:700;margin:16px 0}
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/resizing_sdk.js" type="text/javascript"></script>
+ </head>
+ <body data-template-id="__page-root">
+  <div class="header-bar" data-template-id="header-section"><span data-template-id="header-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="header-right" class="canva-text">QKĐ &amp; QKTD</span>
+  </div>
+  <div class="footer-bar" data-template-id="footer-section"><span data-template-id="footer-left" class="canva-text">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</span> <span data-template-id="footer-right" class="canva-text">QKĐ &amp; QKTD</span>
+  </div><!-- COVER PAGE -->
+  <div id="cover" class="page active">
+   <div style="text-align:center;padding-top:40px">
+    <div class="cover-title" data-template-id="cover-title">
+     PAST SIMPLE &amp; PAST CONTINUOUS
+    </div>
+    <p class="cover-sub" data-template-id="cover-sub">Enter the password to start the quiz</p>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:12px"><input type="text" id="pwInput" class="pw-input" placeholder="Password"> <button class="btn btn-primary" onclick="checkPassword()">▶ Start Quiz</button>
+     <div id="pwError" class="error-msg"></div>
+    </div>
+   </div>
+  </div><!-- QUIZ PAGE -->
+  <div id="quizPage" class="page">
+   <div class="progress-wrap">
+    <div id="progressBar" class="progress-fill" style="width:0%"></div>
+   </div>
+   <div id="timerDisplay" style="text-align:right;font-size:13px;color:var(--gray);margin-bottom:8px">
+    ⏱ 00:00
+   </div><!-- Q1 -->
+   <div class="q-item" id="q0">
+    <div class="q-section">
+     Part 1: Grammar Knowledge
+    </div>
+    <div class="q-number">
+     Question 1/25
+    </div>
+    <div class="q-text">
+     Câu nào dưới đây chia ở thì Quá khứ tiếp diễn?
+    </div>
+    <div class="options"><button class="opt-btn" data-q="0" data-v="0">I went to school yesterday.</button> <button class="opt-btn" data-q="0" data-v="1">She was reading a book at 8 p.m.</button> <button class="opt-btn" data-q="0" data-v="2">They visited their grandparents last week.</button> <button class="opt-btn" data-q="0" data-v="3">He finished his homework.</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex0">
+     <strong>Đáp án: B</strong><br>
+      Câu "She was reading a book at 8 p.m." dùng cấu trúc was/were + V-ing → Past Continuous. Dấu hiệu: "at 8 p.m." chỉ thời điểm cụ thể trong quá khứ. Các câu còn lại dùng V2/ed → Past Simple.
+    </div><button class="btn btn-next" style="display:none" id="nx0" onclick="nextQ(1)">➡ Next Question</button>
+   </div><!-- Q2 -->
+   <div class="q-item" id="q1" style="display:none">
+    <div class="q-section">
+     Part 1: Grammar Knowledge
+    </div>
+    <div class="q-number">
+     Question 2/25
+    </div>
+    <div class="q-text">
+     Từ nào dưới đây là dấu hiệu nhận biết của thì Quá khứ đơn?
+    </div>
+    <div class="options"><button class="opt-btn" data-q="1" data-v="0">while</button> <button class="opt-btn" data-q="1" data-v="1">at that time</button> <button class="opt-btn" data-q="1" data-v="2">yesterday</button> <button class="opt-btn" data-q="1" data-v="3">at 9 o'clock last night</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex1">
+     <strong>Đáp án: C - yesterday</strong><br>
+      "Yesterday" là dấu hiệu nhận biết Past Simple (hành động đã hoàn thành). "While", "at that time", "at 9 o'clock last night" thường dùng cho Past Continuous (hành động đang xảy ra).
+    </div><button class="btn btn-next" style="display:none" id="nx1" onclick="nextQ(2)">➡ Next Question</button>
+   </div><!-- Q3 -->
+   <div class="q-item" id="q2" style="display:none">
+    <div class="q-section">
+     Part 1: Grammar Knowledge
+    </div>
+    <div class="q-number">
+     Question 3/25
+    </div>
+    <div class="q-text">
+     Công thức của thì Quá khứ tiếp diễn là gì?
+    </div>
+    <div class="options"><button class="opt-btn" data-q="2" data-v="0">S + V2/ed + O</button> <button class="opt-btn" data-q="2" data-v="1">S + was/were + V-ing + O</button> <button class="opt-btn" data-q="2" data-v="2">S + did + V-inf + O</button> <button class="opt-btn" data-q="2" data-v="3">S + have/has + V3 + O</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex2">
+     <strong>Đáp án: B</strong><br>
+      Công thức Past Continuous: S + was/were + V-ing. "Was" dùng cho I/he/she/it, "were" dùng cho you/we/they. A là Past Simple, C là Past Simple phủ định/nghi vấn, D là Present Perfect.
+    </div><button class="btn btn-next" style="display:none" id="nx2" onclick="nextQ(3)">➡ Next Question</button>
+   </div><!-- Q4 -->
+   <div class="q-item" id="q3" style="display:none">
+    <div class="q-section">
+     Part 1: Grammar Knowledge
+    </div>
+    <div class="q-number">
+     Question 4/25
+    </div>
+    <div class="q-text">
+     Thì Quá khứ tiếp diễn với "when" dùng để diễn tả:
+    </div>
+    <div class="options"><button class="opt-btn" data-q="3" data-v="0">Two completed actions</button> <button class="opt-btn" data-q="3" data-v="1">A longer action interrupted by a shorter action</button> <button class="opt-btn" data-q="3" data-v="2">A habit in the past</button> <button class="opt-btn" data-q="3" data-v="3">A future plan</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex3">
+     <strong>Đáp án: B</strong><br>
+      Khi dùng "when": hành động dài (đang diễn ra) dùng Past Continuous, hành động ngắn (xen ngang) dùng Past Simple. VD: I was sleeping (dài) when the phone rang (ngắn).
+    </div><button class="btn btn-next" style="display:none" id="nx3" onclick="nextQ(4)">➡ Next Question</button>
+   </div><!-- Q5 -->
+   <div class="q-item" id="q4" style="display:none">
+    <div class="q-section">
+     Part 1: Grammar Knowledge
+    </div>
+    <div class="q-number">
+     Question 5/25
+    </div>
+    <div class="q-text">
+     "While" thường được theo sau bởi:
+    </div>
+    <div class="options"><button class="opt-btn" data-q="4" data-v="0">Past Simple</button> <button class="opt-btn" data-q="4" data-v="1">Present Simple</button> <button class="opt-btn" data-q="4" data-v="2">Past Continuous</button> <button class="opt-btn" data-q="4" data-v="3">Future Simple</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex4">
+     <strong>Đáp án: C - Past Continuous</strong><br>
+      "While" + Past Continuous diễn tả hành động đang xảy ra. Mẹo: While + was/were + V-ing. VD: While I was studying, my mom came home.
+    </div><button class="btn btn-next" style="display:none" id="nx4" onclick="nextQ(5)">➡ Next Question</button>
+   </div><!-- Q6 -->
+   <div class="q-item" id="q5" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 6/25
+    </div>
+    <div class="q-text">
+     When I ______ (come) home, my mother ______ (cook) dinner.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="5" data-v="0">came / was cooking</button> <button class="opt-btn" data-q="5" data-v="1">was coming / cooked</button> <button class="opt-btn" data-q="5" data-v="2">came / cooked</button> <button class="opt-btn" data-q="5" data-v="3">was coming / was cooking</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex5">
+     <strong>Đáp án: A - came / was cooking</strong><br><strong>Dịch nghĩa:</strong> Khi tôi về nhà, mẹ tôi đang nấu bữa tối.<br>
+      "When" + hành động ngắn (came - Past Simple) xen ngang hành động dài đang diễn ra (was cooking - Past Continuous). Mẹo: When + Past Simple, Past Continuous.
+    </div><button class="btn btn-next" style="display:none" id="nx5" onclick="nextQ(6)">➡ Next Question</button>
+   </div><!-- Q7 -->
+   <div class="q-item" id="q6" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 7/25
+    </div>
+    <div class="q-text">
+     While Tom ______ (watch) TV, his brother ______ (do) homework.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="6" data-v="0">watched / did</button> <button class="opt-btn" data-q="6" data-v="1">was watching / was doing</button> <button class="opt-btn" data-q="6" data-v="2">was watching / did</button> <button class="opt-btn" data-q="6" data-v="3">watched / was doing</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex6">
+     <strong>Đáp án: B - was watching / was doing</strong><br><strong>Dịch nghĩa:</strong> Trong khi Tom đang xem TV thì anh trai anh ấy đang làm bài tập.<br>
+      "While" + hai hành động song song cùng xảy ra → cả hai dùng Past Continuous. Công thức: While + S1 + was/were + V-ing, S2 + was/were + V-ing.
+    </div><button class="btn btn-next" style="display:none" id="nx6" onclick="nextQ(7)">➡ Next Question</button>
+   </div><!-- Q8 -->
+   <div class="q-item" id="q7" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 8/25
+    </div>
+    <div class="q-text">
+     The phone ______ (ring) while I ______ (take) a shower.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="7" data-v="0">rang / was taking</button> <button class="opt-btn" data-q="7" data-v="1">was ringing / took</button> <button class="opt-btn" data-q="7" data-v="2">rang / took</button> <button class="opt-btn" data-q="7" data-v="3">was ringing / was taking</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex7">
+     <strong>Đáp án: A - rang / was taking</strong><br><strong>Dịch nghĩa:</strong> Điện thoại reo trong khi tôi đang tắm.<br>
+      Hành động ngắn "rang" (Past Simple) xen ngang hành động dài "was taking" (Past Continuous). Dấu hiệu: "while" đi với hành động dài.
+    </div><button class="btn btn-next" style="display:none" id="nx7" onclick="nextQ(8)">➡ Next Question</button>
+   </div><!-- Q9 -->
+   <div class="q-item" id="q8" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 9/25
+    </div>
+    <div class="q-text">
+     She ______ (study) English at 8 p.m. last night.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="8" data-v="0">studied</button> <button class="opt-btn" data-q="8" data-v="1">was studying</button> <button class="opt-btn" data-q="8" data-v="2">studies</button> <button class="opt-btn" data-q="8" data-v="3">has studied</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex8">
+     <strong>Đáp án: B - was studying</strong><br><strong>Dịch nghĩa:</strong> Cô ấy đang học tiếng Anh lúc 8 giờ tối hôm qua.<br>
+      "At 8 p.m. last night" = thời điểm cụ thể trong quá khứ → hành động đang diễn ra tại thời điểm đó → Past Continuous (was/were + V-ing).
+    </div><button class="btn btn-next" style="display:none" id="nx8" onclick="nextQ(9)">➡ Next Question</button>
+   </div><!-- Q10 -->
+   <div class="q-item" id="q9" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 10/25
+    </div>
+    <div class="q-text">
+     They ______ (play) football when it suddenly ______ (start) to rain.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="9" data-v="0">played / started</button> <button class="opt-btn" data-q="9" data-v="1">were playing / started</button> <button class="opt-btn" data-q="9" data-v="2">played / was starting</button> <button class="opt-btn" data-q="9" data-v="3">were playing / was starting</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex9">
+     <strong>Đáp án: B - were playing / started</strong><br><strong>Dịch nghĩa:</strong> Họ đang chơi bóng đá thì trời đột nhiên bắt đầu mưa.<br>
+      "Suddenly" = hành động xen ngang bất ngờ (Past Simple). Hành động đang diễn ra bị ngắt → Past Continuous. Mẹo: suddenly + Past Simple.
+    </div><button class="btn btn-next" style="display:none" id="nx9" onclick="nextQ(10)">➡ Next Question</button>
+   </div><!-- Q11 -->
+   <div class="q-item" id="q10" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 11/25
+    </div>
+    <div class="q-text">
+     I ______ (not/see) him at the party yesterday.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="10" data-v="0">didn't see</button> <button class="opt-btn" data-q="10" data-v="1">wasn't seeing</button> <button class="opt-btn" data-q="10" data-v="2">don't see</button> <button class="opt-btn" data-q="10" data-v="3">haven't seen</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex10">
+     <strong>Đáp án: A - didn't see</strong><br><strong>Dịch nghĩa:</strong> Tôi không gặp anh ấy tại bữa tiệc hôm qua.<br>
+      "Yesterday" là dấu hiệu nhận biết của thì Quá khứ đơn. Chỉ có đáp án A được chia ở thì Quá khứ đơn nên chọn A. Đây là câu phủ định của thì Quá khứ đơn, công thức là: didn't + động từ nguyên mẫu (V-inf).
+    </div><button class="btn btn-next" style="display:none" id="nx10" onclick="nextQ(11)">➡ Next Question</button>
+   </div><!-- Q12 -->
+   <div class="q-item" id="q11" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 12/25
+    </div>
+    <div class="q-text">
+     At that time, we ______ (wait) for the bus.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="11" data-v="0">waited</button> <button class="opt-btn" data-q="11" data-v="1">were waiting</button> <button class="opt-btn" data-q="11" data-v="2">wait</button> <button class="opt-btn" data-q="11" data-v="3">have waited</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex11">
+     <strong>Đáp án: B - were waiting</strong><br><strong>Dịch nghĩa:</strong> Vào lúc đó, chúng tôi đang chờ xe buýt.<br>
+      "At that time" = thời điểm cụ thể trong quá khứ → hành động đang diễn ra → Past Continuous (were waiting).
+    </div><button class="btn btn-next" style="display:none" id="nx11" onclick="nextQ(12)">➡ Next Question</button>
+   </div><!-- Q13 -->
+   <div class="q-item" id="q12" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 13/25
+    </div>
+    <div class="q-text">
+     He ______ (fall) asleep while he ______ (read) a book.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="12" data-v="0">fell / was reading</button> <button class="opt-btn" data-q="12" data-v="1">was falling / read</button> <button class="opt-btn" data-q="12" data-v="2">fell / read</button> <button class="opt-btn" data-q="12" data-v="3">was falling / was reading</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex12">
+     <strong>Đáp án: A - fell / was reading</strong><br><strong>Dịch nghĩa:</strong> Anh ấy ngủ thiếp đi trong khi đang đọc sách.<br>
+      "While" + hành động dài (was reading - Past Continuous). "Fell" là hành động ngắn xen ngang (Past Simple). Fell asleep = ngủ thiếp đi.
+    </div><button class="btn btn-next" style="display:none" id="nx12" onclick="nextQ(13)">➡ Next Question</button>
+   </div><!-- Q14 -->
+   <div class="q-item" id="q13" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 14/25
+    </div>
+    <div class="q-text">
+     As I ______ (walk) to school, I ______ (meet) an old friend.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="13" data-v="0">walked / met</button> <button class="opt-btn" data-q="13" data-v="1">was walking / met</button> <button class="opt-btn" data-q="13" data-v="2">walked / was meeting</button> <button class="opt-btn" data-q="13" data-v="3">was walking / was meeting</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex13">
+     <strong>Đáp án: B - was walking / met</strong><br><strong>Dịch nghĩa:</strong> Khi đang đi bộ đến trường, tôi gặp một người bạn cũ.<br>
+      "As" có nghĩa là "Khi", "Vừa lúc", đây là một dấu hiệu thường dùng để diễn tả hai hành động xảy ra trong quá khứ. Hành động "đi bộ đến trường" là hành động đang diễn ra nên chia thì Quá khứ tiếp diễn. Hành động "gặp bạn cũ" là hành động xảy ra xen vào nên chia thì Quá khứ đơn.
+    </div><button class="btn btn-next" style="display:none" id="nx13" onclick="nextQ(14)">➡ Next Question</button>
+   </div><!-- Q15 -->
+   <div class="q-item" id="q14" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 15/25
+    </div>
+    <div class="q-text">
+     The children ______ (sleep) all day because they were sick.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="14" data-v="0">slept</button> <button class="opt-btn" data-q="14" data-v="1">were sleeping</button> <button class="opt-btn" data-q="14" data-v="2">sleep</button> <button class="opt-btn" data-q="14" data-v="3">have slept</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex14">
+     <strong>Đáp án: B - were sleeping</strong><br><strong>Dịch nghĩa:</strong> Những đứa trẻ ngủ cả ngày vì chúng bị bệnh.<br>
+      "All day" diễn tả hành động kéo dài suốt cả ngày trong quá khứ → Past Continuous nhấn mạnh tính liên tục của hành động.
+    </div><button class="btn btn-next" style="display:none" id="nx14" onclick="nextQ(15)">➡ Next Question</button>
+   </div><!-- Q16 -->
+   <div class="q-item" id="q15" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 16/25
+    </div>
+    <div class="q-text">
+     She ______ (break) her leg while she ______ (ski).
+    </div>
+    <div class="options"><button class="opt-btn" data-q="15" data-v="0">broke / was skiing</button> <button class="opt-btn" data-q="15" data-v="1">was breaking / skied</button> <button class="opt-btn" data-q="15" data-v="2">broke / skied</button> <button class="opt-btn" data-q="15" data-v="3">was breaking / was skiing</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex15">
+     <strong>Đáp án: A - broke / was skiing</strong><br><strong>Dịch nghĩa:</strong> Cô ấy gãy chân trong khi đang trượt tuyết.<br>
+      "Broke" (gãy) là hành động ngắn xảy ra đột ngột → Past Simple. "Was skiing" là hành động đang diễn ra → Past Continuous. While + Past Continuous.
+    </div><button class="btn btn-next" style="display:none" id="nx15" onclick="nextQ(16)">➡ Next Question</button>
+   </div><!-- Q17 -->
+   <div class="q-item" id="q16" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 17/25
+    </div>
+    <div class="q-text">
+     We ______ (have) dinner when the lights ______ (go) out.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="16" data-v="0">had / went</button> <button class="opt-btn" data-q="16" data-v="1">were having / went</button> <button class="opt-btn" data-q="16" data-v="2">had / were going</button> <button class="opt-btn" data-q="16" data-v="3">were having / were going</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex16">
+     <strong>Đáp án: B - were having / went</strong><br><strong>Dịch nghĩa:</strong> Chúng tôi đang ăn tối thì đèn tắt.<br>
+      Đang ăn tối (hành động dài - Past Continuous) thì đèn tắt (hành động ngắn xen ngang - Past Simple). "When" + Past Simple.
+    </div><button class="btn btn-next" style="display:none" id="nx16" onclick="nextQ(17)">➡ Next Question</button>
+   </div><!-- Q18 -->
+   <div class="q-item" id="q17" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 18/25
+    </div>
+    <div class="q-text">
+     I saw Mary at the party tonight. She ______ a beautiful dress.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="17" data-v="0">wore</button> <button class="opt-btn" data-q="17" data-v="1">was wearing</button> <button class="opt-btn" data-q="17" data-v="2">wears</button> <button class="opt-btn" data-q="17" data-v="3">is wearing</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex17">
+     <strong>Đáp án: B - was wearing</strong><br><strong>Dịch nghĩa:</strong> Tôi gặp Mary tại bữa tiệc tối nay. Cô ấy đang mặc một chiếc váy rất đẹp.<br>
+      Động từ saw diễn tả hành động nhìn thấy tại một thời điểm trong quá khứ. Trang phục Mary đang mặc tại thời điểm đó là hành động đang diễn ra nên dùng thì Quá khứ tiếp diễn. Cấu trúc: was/were + V-ing → She was wearing a beautiful dress.
+    </div><button class="btn btn-next" style="display:none" id="nx17" onclick="nextQ(18)">➡ Next Question</button>
+   </div><!-- Q19 -->
+   <div class="q-item" id="q18" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 19/25
+    </div>
+    <div class="q-text">
+     ______ you ______ (study) at 9 p.m. last night?
+    </div>
+    <div class="options"><button class="opt-btn" data-q="18" data-v="0">Did / study</button> <button class="opt-btn" data-q="18" data-v="1">Were / studying</button> <button class="opt-btn" data-q="18" data-v="2">Was / studying</button> <button class="opt-btn" data-q="18" data-v="3">Do / study</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex18">
+     <strong>Đáp án: B - Were / studying</strong><br><strong>Dịch nghĩa:</strong> Bạn có đang học tập lúc 9 giờ tối hôm qua không?<br>
+      "At 9 p.m. last night" = thời điểm cụ thể → Past Continuous. Nghi vấn: Were + you + V-ing? (you đi với were).
+    </div><button class="btn btn-next" style="display:none" id="nx18" onclick="nextQ(19)">➡ Next Question</button>
+   </div><!-- Q20 -->
+   <div class="q-item" id="q19" style="display:none">
+    <div class="q-section">
+     Part 2: Verb Forms
+    </div>
+    <div class="q-number">
+     Question 20/25
+    </div>
+    <div class="q-text">
+     My dad ______ (drive) to work when he ______ (see) an accident.
+    </div>
+    <div class="options"><button class="opt-btn" data-q="19" data-v="0">drove / saw</button> <button class="opt-btn" data-q="19" data-v="1">was driving / saw</button> <button class="opt-btn" data-q="19" data-v="2">drove / was seeing</button> <button class="opt-btn" data-q="19" data-v="3">was driving / was seeing</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex19">
+     <strong>Đáp án: B - was driving / saw</strong><br><strong>Dịch nghĩa:</strong> Bố tôi đang lái xe đến nơi làm việc thì nhìn thấy một vụ tai nạn.<br>
+      Hành động "đang lái xe" là hành động kéo dài nên chia thì Quá khứ tiếp diễn. Hành động "nhìn thấy vụ tai nạn" là hành động xảy ra xen vào nên chia thì Quá khứ đơn. Đây là dạng bài rất thường gặp kết hợp giữa Quá khứ tiếp diễn và Quá khứ đơn.
+    </div><button class="btn btn-next" style="display:none" id="nx19" onclick="nextQ(20)">➡ Next Question</button>
+   </div><!-- Q21 - Click to Build -->
+   <div class="q-item" id="q20" style="display:none">
+    <div class="q-section">
+     Part 3: Click-to-Build Sentence
+    </div>
+    <div class="q-number">
+     Question 21/25
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu hoàn chỉnh:
+    </div>
+    <div class="word-bank" id="wb20"></div>
+    <div class="answer-area" id="aa20"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-sm btn-undo" onclick="undoWord(20)">↩ Undo</button> <button class="btn-sm btn-check" onclick="checkBuild(20)">✓ Check</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex20">
+     <strong>Đáp án: I was walking home.</strong><br>
+      Cấu trúc Past Continuous: S + was + V-ing. "I" đi với "was". Walking home = đang đi bộ về nhà.
+    </div><button class="btn btn-next" style="display:none" id="nx20" onclick="nextQ(21)">➡ Next Question</button>
+   </div><!-- Q22 - Click to Build -->
+   <div class="q-item" id="q21" style="display:none">
+    <div class="q-section">
+     Part 3: Click-to-Build Sentence
+    </div>
+    <div class="q-number">
+     Question 22/25
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu hoàn chỉnh:
+    </div>
+    <div class="word-bank" id="wb21"></div>
+    <div class="answer-area" id="aa21"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-sm btn-undo" onclick="undoWord(21)">↩ Undo</button> <button class="btn-sm btn-check" onclick="checkBuild(21)">✓ Check</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex21">
+     <strong>Đáp án: When I arrived, they were playing football.</strong><br>
+      "When" + Past Simple (arrived) → hành động xen ngang. "Were playing" → Past Continuous (hành động đang diễn ra).
+    </div><button class="btn btn-next" style="display:none" id="nx21" onclick="nextQ(22)">➡ Next Question</button>
+   </div><!-- Q23 - Click to Build -->
+   <div class="q-item" id="q22" style="display:none">
+    <div class="q-section">
+     Part 3: Click-to-Build Sentence
+    </div>
+    <div class="q-number">
+     Question 23/25
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu hoàn chỉnh:
+    </div>
+    <div class="word-bank" id="wb22"></div>
+    <div class="answer-area" id="aa22"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-sm btn-undo" onclick="undoWord(22)">↩ Undo</button> <button class="btn-sm btn-check" onclick="checkBuild(22)">✓ Check</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex22">
+     <strong>Đáp án: The children were sleeping.</strong><br>
+      Cấu trúc: S + were + V-ing. "The children" (số nhiều) → were. Câu đơn giản dạng khẳng định Past Continuous.
+    </div><button class="btn btn-next" style="display:none" id="nx22" onclick="nextQ(23)">➡ Next Question</button>
+   </div><!-- Q24 - Click to Build -->
+   <div class="q-item" id="q23" style="display:none">
+    <div class="q-section">
+     Part 3: Click-to-Build Sentence
+    </div>
+    <div class="q-number">
+     Question 24/25
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu hoàn chỉnh:
+    </div>
+    <div class="word-bank" id="wb23"></div>
+    <div class="answer-area" id="aa23"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-sm btn-undo" onclick="undoWord(23)">↩ Undo</button> <button class="btn-sm btn-check" onclick="checkBuild(23)">✓ Check</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex23">
+     <strong>Đáp án: I didn't see him yesterday.</strong><br>
+      Past Simple phủ định: S + didn't + V-inf. "Yesterday" là dấu hiệu Past Simple. Lưu ý: didn't + see (nguyên thể).
+    </div><button class="btn btn-next" style="display:none" id="nx23" onclick="nextQ(24)">➡ Next Question</button>
+   </div><!-- Q25 - Click to Build -->
+   <div class="q-item" id="q24" style="display:none">
+    <div class="q-section">
+     Part 3: Click-to-Build Sentence
+    </div>
+    <div class="q-number">
+     Question 25/25
+    </div>
+    <div class="q-text">
+     Sắp xếp các từ thành câu hoàn chỉnh:
+    </div>
+    <div class="word-bank" id="wb24"></div>
+    <div class="answer-area" id="aa24"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn-sm btn-undo" onclick="undoWord(24)">↩ Undo</button> <button class="btn-sm btn-check" onclick="checkBuild(24)">✓ Check</button>
+    </div>
+    <div class="explain-box" style="display:none" id="ex24">
+     <strong>Đáp án: Were you studying at 9 p.m.?</strong><br>
+      Past Continuous nghi vấn: Were + S + V-ing? Dấu hiệu "at 9 p.m." → thời điểm cụ thể → Past Continuous.
+    </div><button class="btn btn-next" style="display:none" id="nx24" onclick="showResult()">➡ Xem kết quả</button>
+   </div>
+  </div><!-- RESULT PAGE -->
+  <div id="resultPage" class="page">
+   <div class="result-title">
+    🎉 Quiz Completed!
+   </div>
+   <div class="result-score" id="finalScore">
+    0/25
+   </div>
+   <div class="result-grid">
+    <div class="result-card">
+     <div class="val" id="rCorrect">
+      0
+     </div>
+     <div class="lbl">
+      Câu đúng
+     </div>
+    </div>
+    <div class="result-card">
+     <div class="val" id="rWrong">
+      0
+     </div>
+     <div class="lbl">
+      Câu sai
+     </div>
+    </div>
+    <div class="result-card">
+     <div class="val" id="rPercent">
+      0%
+     </div>
+     <div class="lbl">
+      Tỉ lệ
+     </div>
+    </div>
+    <div class="result-card">
+     <div class="val" id="rTime">
+      00:00
+     </div>
+     <div class="lbl">
+      Thời gian
+     </div>
+    </div>
+   </div>
+   <div class="result-comment" id="rComment"></div>
+   <div style="text-align:center;margin-top:24px"><button class="btn btn-retry" onclick="resetQuiz()">🔄 Làm lại</button>
+   </div>
+  </div>
+  <script>
+// Answers for MCQ (0-indexed option)
+var answers=[1,2,1,1,2,0,1,0,1,1,0,1,0,1,1,0,1,1,1,1];
+// Click-to-build data
+var buildData=[
+{words:["home","was","I","walking","."],answer:"I was walking home."},
+{words:["arrived,","were","When","they","I","playing","football","."],answer:"When I arrived, they were playing football."},
+{words:["were","The","sleeping","children","."],answer:"The children were sleeping."},
+{words:["didn't","him","see","I","yesterday","."],answer:"I didn't see him yesterday."},
+{words:["you","Were","studying","at","9","p.m.","?"],answer:"Were you studying at 9 p.m.?"}
+];
+
+var score=0,currentQ=0,timerInterval=null,seconds=0;
+var buildSelected=[[],[],[],[],[]];
+var buildLocked=[false,false,false,false,false];
+
+function checkPassword(){
+var pw=document.getElementById('pwInput').value.trim();
+if(pw==='1205'){
+document.getElementById('cover').classList.remove('active');
+document.getElementById('cover').style.display='none';
+document.getElementById('quizPage').classList.add('active');
+initBuilds();
+startTimer();
+}else{
+document.getElementById('pwError').textContent='❌ Incorrect password!';
+}
+}
+
+function startTimer(){
+seconds=0;
+timerInterval=setInterval(function(){
+seconds++;
+var m=Math.floor(seconds/60),s=seconds%60;
+document.getElementById('timerDisplay').textContent='⏱ '+(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+},1000);
+}
+
+function initBuilds(){
+for(var i=0;i<5;i++){
+var qi=20+i;
+var wb=document.getElementById('wb'+qi);
+var shuffled=buildData[i].words.slice().sort(function(){return Math.random()-0.5});
+wb.innerHTML='';
+for(var j=0;j<shuffled.length;j++){
+var chip=document.createElement('span');
+chip.className='word-chip';
+chip.textContent=shuffled[j];
+chip.setAttribute('data-bi',i);
+chip.setAttribute('data-idx',j);
+chip.onclick=function(){selectWord(this)};
+wb.appendChild(chip);
+}
+}
+}
+
+function selectWord(el){
+var bi=parseInt(el.getAttribute('data-bi'));
+if(buildLocked[bi])return;
+el.classList.add('used');
+buildSelected[bi].push({text:el.textContent,el:el});
+renderAnswer(bi);
+}
+
+function renderAnswer(bi){
+var aa=document.getElementById('aa'+(20+bi));
+aa.innerHTML='';
+for(var i=0;i<buildSelected[bi].length;i++){
+var c=document.createElement('span');
+c.className='answer-chip';
+c.textContent=buildSelected[bi][i].text;
+aa.appendChild(c);
+}
+}
+
+function undoWord(qi){
+var bi=qi-20;
+if(buildLocked[bi]||buildSelected[bi].length===0)return;
+var last=buildSelected[bi].pop();
+last.el.classList.remove('used');
+renderAnswer(bi);
+}
+
+function checkBuild(qi){
+var bi=qi-20;
+if(buildLocked[bi])return;
+var userArr=buildSelected[bi].map(function(x){return x.text});
+var userStr=userArr.join(' ').replace(/\s+([.?!,])/g,'$1').trim();
+var correct=buildData[bi].answer;
+buildLocked[bi]=true;
+// Lock word bank
+var wb=document.getElementById('wb'+qi);
+var chips=wb.querySelectorAll('.word-chip');
+for(var i=0;i<chips.length;i++)chips[i].onclick=null;
+
+if(userStr===correct){
+score++;
+playSound(true);
+document.getElementById('ex'+qi).insertAdjacentHTML('beforebegin','<div style="color:#16a34a;font-weight:700;margin-top:12px">✅ Chính xác!</div>');
+}else{
+playSound(false);
+document.getElementById('ex'+qi).insertAdjacentHTML('beforebegin','<div style="color:#ef4444;font-weight:700;margin-top:12px">❌ Chưa chính xác</div>');
+}
+document.getElementById('ex'+qi).style.display='block';
+document.getElementById('nx'+qi).style.display='inline-flex';
+}
+
+// MCQ click handler
+document.addEventListener('click',function(e){
+if(!e.target.classList.contains('opt-btn'))return;
+var q=parseInt(e.target.getAttribute('data-q'));
+var v=parseInt(e.target.getAttribute('data-v'));
+if(q===undefined||isNaN(q))return;
+var parent=e.target.closest('.q-item');
+var btns=parent.querySelectorAll('.opt-btn');
+// Check if locked
+if(btns[0].classList.contains('locked'))return;
+// Lock all
+for(var i=0;i<btns.length;i++){btns[i].classList.add('locked');}
+// Mark
+if(v===answers[q]){
+e.target.classList.add('correct');
+score++;
+playSound(true);
+}else{
+e.target.classList.add('wrong');
+btns[answers[q]].classList.add('correct');
+playSound(false);
+}
+document.getElementById('ex'+q).style.display='block';
+document.getElementById('nx'+q).style.display='inline-flex';
+});
+
+function nextQ(n){
+document.getElementById('q'+(n-1)).style.display='none';
+document.getElementById('q'+n).style.display='block';
+document.getElementById('progressBar').style.width=((n+1)/25*100)+'%';
+}
+
+function showResult(){
+clearInterval(timerInterval);
+document.getElementById('quizPage').classList.remove('active');
+document.getElementById('quizPage').style.display='none';
+document.getElementById('resultPage').classList.add('active');
+var wrong=25-score;
+var pct=Math.round(score/25*100);
+var m=Math.floor(seconds/60),s=seconds%60;
+document.getElementById('finalScore').textContent=score+'/25';
+document.getElementById('rCorrect').textContent=score;
+document.getElementById('rWrong').textContent=wrong;
+document.getElementById('rPercent').textContent=pct+'%';
+document.getElementById('rTime').textContent=(m<10?'0':'')+m+':'+(s<10?'0':'')+s;
+var comment='';
+if(score>=22)comment='🌟 Excellent!';
+else if(score>=18)comment='🎉 Very Good!';
+else if(score>=14)comment='👍 Good!';
+else if(score>=10)comment='😊 Keep Practising!';
+else comment='💪 Review the grammar and try again!';
+document.getElementById('rComment').textContent=comment;
+playVictory();
+}
+
+function resetQuiz(){
+score=0;seconds=0;currentQ=0;
+buildSelected=[[],[],[],[],[]];
+buildLocked=[false,false,false,false,false];
+clearInterval(timerInterval);
+document.getElementById('resultPage').classList.remove('active');
+document.getElementById('resultPage').style.display='none';
+document.getElementById('quizPage').style.display='none';
+document.getElementById('quizPage').classList.remove('active');
+// Reset all questions
+for(var i=0;i<25;i++){
+var qi=document.getElementById('q'+i);
+qi.style.display=(i===0)?'block':'none';
+var btns=qi.querySelectorAll('.opt-btn');
+for(var j=0;j<btns.length;j++){
+btns[j].classList.remove('locked','correct','wrong','selected');
+}
+document.getElementById('ex'+i).style.display='none';
+document.getElementById('nx'+i).style.display='none';
+// Remove inserted feedback
+var feedbacks=qi.querySelectorAll('div[style*="color:#16a34a"],div[style*="color:#ef4444"]');
+for(var k=0;k<feedbacks.length;k++){
+if(feedbacks[k].classList.length===0)feedbacks[k].remove();
+}
+}
+document.getElementById('progressBar').style.width='0%';
+document.getElementById('timerDisplay').textContent='⏱ 00:00';
+document.getElementById('pwInput').value='';
+document.getElementById('pwError').textContent='';
+document.getElementById('cover').style.display='block';
+document.getElementById('cover').classList.add('active');
+}
+
+// Web Audio API sounds
+var audioCtx=null;
+function getCtx(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();return audioCtx;}
+function playSound(correct){
+var ctx=getCtx();
+var osc=ctx.createOscillator();
+var gain=ctx.createGain();
+osc.connect(gain);gain.connect(ctx.destination);
+if(correct){osc.type='sine';osc.frequency.setValueAtTime(523,ctx.currentTime);osc.frequency.setValueAtTime(659,ctx.currentTime+0.1);osc.frequency.setValueAtTime(784,ctx.currentTime+0.2);}
+else{osc.type='sawtooth';osc.frequency.setValueAtTime(200,ctx.currentTime);osc.frequency.setValueAtTime(150,ctx.currentTime+0.2);}
+gain.gain.setValueAtTime(0.3,ctx.currentTime);
+gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+0.5);
+osc.start(ctx.currentTime);osc.stop(ctx.currentTime+0.5);
+}
+function playVictory(){
+var ctx=getCtx();
+var notes=[523,587,659,784,880,1047];
+for(var i=0;i<notes.length;i++){
+var osc=ctx.createOscillator();var gain=ctx.createGain();
+osc.connect(gain);gain.connect(ctx.destination);
+osc.type='sine';osc.frequency.setValueAtTime(notes[i],ctx.currentTime+i*0.15);
+gain.gain.setValueAtTime(0.2,ctx.currentTime+i*0.15);
+gain.gain.exponentialRampToValueAtTime(0.01,ctx.currentTime+i*0.15+0.4);
+osc.start(ctx.currentTime+i*0.15);osc.stop(ctx.currentTime+i*0.15+0.4);
+}
+}
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a12c36aac6b85542',t:'MTc4MjY0NDY5Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
