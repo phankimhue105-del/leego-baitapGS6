@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+ <head><script>window["__codeletBootstrap__"]=JSON.parse('{"A":"A","B":"20260630-05-8900874"}');</script><script src="/_sdk/e4192b04afde3ce7.telemetry_sdk.js" integrity="sha512-4eZpyKBd3YJnsIPrIpaBqo7QT5UZ6+KSFXkSu1IQiB7jKM8y67ChRhZ5Yh6JfuOJCbPdISiNcS6nLKZzIMG1uQ=="></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superlatives Quiz</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <script src="/_sdk/c94a279e896d0a23.editing_sdk.js" integrity="sha512-uhzUP50YzTVKO+Zk7rEhhvjMMNFy592eHXVEXciJzhLpIQxrlwzWv/DQvyYWQ+AKpYwxxCvjgWkVa5LTga2NWg=="></script>
+  <style>
+        * { font-family: 'DM Sans', sans-serif; }
+        .word-box { transition: transform 0.1s, box-shadow 0.1s; }
+        .word-box:active { transform: scale(0.95); }
+        .fade-in { animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js" type="text/javascript"></script>
+  <script src="/_sdk/48bf7c4c70d0d03c.data_sdk.js" type="text/javascript" integrity="sha512-e/yrQJz+prdXXt4yUvxXhl1WBGu3BRkP8X0fipGXI5gqiFClI7wI6K3TQnD7d63vx+BVhwzIvY6r8OrpX7lXJA=="></script>
+  <script src="/_sdk/5d8c692e132d2125.resizing_sdk.js" type="text/javascript" integrity="sha512-/Du3Fqe12kKsCd3BrbaNQEPtMxQi9S5hbJhnTf09AAilpqYsGa4N0rnimSX1Ui4dwNElKlen6VlI+E1n/NEfrA=="></script>
+ </head>
+ <body data-template-id="__page-root" class="min-h-screen bg-slate-50">
+  <header data-template-id="header-section" class="canva-header fixed top-0 left-0 w-full z-[9999] bg-blue-700 text-white px-4 py-2 shadow-md">
+   <p class="canva-text text-sm font-medium">Trung tâm Anh ngữ LeeGo - Hotline: 0988.526.585</p>
+  </header>
+  <footer data-template-id="footer-section" class="canva-footer fixed bottom-0 left-0 w-full z-[9999] bg-blue-700 text-white px-4 py-2">
+   <p class="canva-text text-sm text-right font-medium">So sánh nhất</p>
+  </footer>
+  <main class="pt-12 pb-12 px-4 max-w-2xl mx-auto">
+   <!-- Cover Page -->
+   <div id="cover-page" class="fade-in flex flex-col items-center justify-center min-h-[calc(80*min(var(--vh,1vh),1vh))] text-center">
+    <h1 class="text-4xl md:text-5xl font-bold text-blue-800 mb-8">SUPERLATIVES</h1>
+    <div class="w-full max-w-xs space-y-4">
+     <input id="password-input" type="password" placeholder="Nhập mật khẩu..." class="w-full px-4 py-3 rounded-xl border-2 border-blue-200 text-center text-lg focus:outline-none focus:border-blue-500"> <button id="start-btn" data-template-id="start-button" class="canva-button w-full py-3 rounded-xl font-bold text-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed" disabled onclick="startQuiz()">Start Quiz</button>
+    </div>
+   </div><!-- Quiz Page -->
+   <div id="quiz-page" class="hidden fade-in">
+    <div class="mb-4">
+     <div class="flex justify-between text-sm text-slate-600 mb-1"><span id="q-progress"></span><span id="q-score"></span>
+     </div>
+     <div class="w-full h-2 bg-slate-200 rounded-full">
+      <div id="progress-bar" class="h-2 bg-blue-500 rounded-full transition-all"></div>
+     </div>
+    </div>
+    <div id="question-area" class="bg-white rounded-2xl shadow-lg p-6"></div>
+    <div id="feedback-area" class="mt-4 hidden bg-white rounded-2xl shadow p-5"></div><button id="next-btn" class="hidden mt-4 w-full py-3 bg-blue-600 text-white rounded-xl font-bold text-lg hover:bg-blue-700" onclick="nextQuestion()">Tiếp theo →</button>
+   </div><!-- Result Page -->
+   <div id="result-page" class="hidden fade-in flex flex-col items-center justify-center min-h-[calc(70*min(var(--vh,1vh),1vh))] text-center">
+    <h2 data-template-id="result-title" class="canva-text text-3xl font-bold text-blue-800 mb-6"></h2>
+    <div id="result-stats" class="bg-white rounded-2xl shadow-lg p-6 w-full max-w-sm mb-6"></div><button data-template-id="restart-button" class="canva-button w-full max-w-xs py-3 rounded-xl font-bold text-lg bg-blue-600 text-white hover:bg-blue-700">Làm lại</button>
+   </div>
+  </main>
+  <script>
+const PASS = "1205";
+let currentQ = 0, score = 0, answered = false;
+let sentenceBuilt = [];
+
+const questions = [
+  // PART 1: Multiple Choice (12)
+  {type:"mc", q:"Mount Everest is _____ mountain in the world.", opts:["the highest","the most high","the higher","highest"], correct:0, explain:"Đáp án đúng: 'the highest'. 'High' là tính từ ngắn (1 âm tiết), ta thêm -est và dùng 'the' phía trước. 'The most high' sai vì không dùng 'most' với tính từ ngắn. 'The higher' là so sánh hơn, không phải nhất. 'Highest' thiếu mạo từ 'the'."},
+  {type:"mc", q:"She is _____ student in our class.", opts:["the most intelligent","the intelligentest","most intelligent","the more intelligent"], correct:0, explain:"Đáp án đúng: 'the most intelligent'. 'Intelligent' là tính từ dài (4 âm tiết), ta dùng 'the most + adj'. 'Intelligentest' không tồn tại. 'Most intelligent' thiếu 'the'. 'The more intelligent' là so sánh hơn."},
+  {type:"mc", q:"Today is _____ day of the year.", opts:["the hottest","the most hot","the hotest","hotter"], correct:0, explain:"Đáp án đúng: 'the hottest'. 'Hot' kết thúc bằng phụ âm đơn sau nguyên âm đơn → gấp đôi phụ âm + est. 'The most hot' sai cấu trúc. 'The hotest' sai chính tả (phải gấp đôi 't'). 'Hotter' là so sánh hơn."},
+  {type:"mc", q:"This is _____ book I have ever read.", opts:["the worst","the baddest","the most bad","worst"], correct:0, explain:"Đáp án đúng: 'the worst'. 'Bad' là tính từ bất quy tắc: bad → worse → the worst. 'Baddest' và 'the most bad' không đúng ngữ pháp. 'Worst' thiếu 'the'."},
+  {type:"mc", q:"Russia is _____ country in the world.", opts:["the largest","the most large","the larger","largest"], correct:0, explain:"Đáp án đúng: 'the largest'. 'Large' kết thúc bằng 'e', ta chỉ thêm -st → largest, kèm 'the'. Các đáp án khác sai cấu trúc hoặc thiếu 'the'."},
+  {type:"mc", q:"He is one of _____ players on the team.", opts:["the best","the goodest","the most good","better"], correct:0, explain:"Đáp án đúng: 'the best'. Cấu trúc 'one of the + superlative + danh từ số nhiều'. 'Good' bất quy tắc: good → better → the best. 'Goodest' và 'most good' không tồn tại."},
+  {type:"mc", q:"That was _____ movie I have ever seen.", opts:["the most boring","the boringest","the most bored","boringer"], correct:0, explain:"Đáp án đúng: 'the most boring'. 'Boring' là tính từ dài (2 âm tiết, đuôi -ing) → dùng 'the most'. 'Boringest' không đúng. 'Bored' mô tả cảm xúc người, không phải đặc điểm phim. 'Boringer' sai."},
+  {type:"mc", q:"My sister is _____ person in my family.", opts:["the happiest","the most happy","the happyest","happier"], correct:0, explain:"Đáp án đúng: 'the happiest'. 'Happy' kết thúc bằng 'y' → đổi y thành i + est. 'The most happy' có thể chấp nhận nhưng không phổ biến. 'Happyest' sai chính tả. 'Happier' là so sánh hơn."},
+  {type:"mc", q:"The Sahara is _____ desert in Africa.", opts:["the driest","the most dry","the dryest","dryer"], correct:0, explain:"Đáp án đúng: 'the driest'. 'Dry' kết thúc bằng 'y' → đổi y thành i + est. 'The most dry' không phổ biến với tính từ ngắn. 'Dryest' sai chính tả. 'Dryer' là so sánh hơn."},
+  {type:"mc", q:"This is _____ interesting of all the stories in the collection.", opts:["the least","the less","least","the fewest"], correct:0, explain:"Đáp án đúng: \"the least\". Cấu trúc \"the least + tính từ\" dùng để diễn tả mức độ thấp nhất trong phép so sánh nhất. \"The less\" là cấu trúc so sánh hơn nên không dùng trong câu này. \"Least\" đứng một mình thiếu mạo từ \"the\", vì vậy không đúng ngữ pháp."},
+  {type:"mc", q:"Which planet is _____ from the Sun?", opts:["the farthest","the most far","the farrer","farthest"], correct:0, explain:"Đáp án đúng: 'the farthest'. 'Far' bất quy tắc: far → farther/further → the farthest/the furthest. 'The most far' và 'farrer' không tồn tại. 'Farthest' thiếu 'the'."},
+  {type:"build", words:["Mount","Everest","is","the","highest","mountain","in","the","world","."], answer:"Mount Everest is the highest mountain in the world.", explain:"'Mount Everest' là chủ ngữ, 'is' là động từ, 'the highest mountain' là so sánh nhất của 'high' (tính từ ngắn + est), 'in the world' chỉ phạm vi."},
+  {type:"build", words:["She","is","the","most","beautiful","girl","in","our","school","."], answer:"She is the most beautiful girl in our school.", explain:"'Beautiful' là tính từ dài → dùng 'the most beautiful'. 'In our school' chỉ phạm vi so sánh."},
+  {type:"build", words:["This","is","the","worst","food","I","have","ever","eaten","."], answer:"This is the worst food I have ever eaten.", explain:"'Worst' là dạng so sánh nhất của 'bad' (bất quy tắc). Cấu trúc: the + superlative + N + S + have ever + V3."},
+  {type:"build", words:["Today","is","the","coldest","day","of","the","week","."], answer:"Today is the coldest day of the week.", explain:"'Cold' là tính từ ngắn → thêm -est. 'Of the week' chỉ phạm vi nhóm."},
+  {type:"build", words:["He","is","one","of","the","tallest","boys","in","the","class","."], answer:"He is one of the tallest boys in the class.", explain:"Cấu trúc: one of the + superlative + danh từ số nhiều. 'Tall' + est = tallest."},
+  {type:"build", words:["This","is","the","most","difficult","exam","of","the","year","."], answer:"This is the most difficult exam of the year.", explain:"'Difficult' là tính từ dài (3 âm tiết) → dùng 'the most difficult'. 'Of the year' chỉ phạm vi."},
+  {type:"build", words:["The","cheetah","is","the","fastest","animal","on","land","."], answer:"The cheetah is the fastest animal on land.", explain:"'Fast' là tính từ ngắn → thêm -est = fastest. 'On land' chỉ phạm vi."},
+  {type:"build", words:["London","is","one","of","the","most","expensive","cities","in","Europe","."], answer:"London is one of the most expensive cities in Europe.", explain:"Cấu trúc: one of the most + adj dài + danh từ số nhiều. 'Expensive' dài → dùng 'most'."}
+];
+
+function shuffle(arr) { for(let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
+
+const pwInput = document.getElementById('password-input');
+const startBtn = document.getElementById('start-btn');
+pwInput.addEventListener('input', () => {
+    const err = document.getElementById('pw-error');
+    if(pwInput.value === PASS){ startBtn.disabled=false; err.classList.add('hidden'); }
+    else { startBtn.disabled=true; }
+});
+pwInput.addEventListener('keydown', e => { if(e.key==='Enter') { if(pwInput.value===PASS) startQuiz(); else document.getElementById('pw-error').classList.remove('hidden'); }});
+
+function playTone(type) {
+    try {
+        const ctx = new (window.AudioContext||window.webkitAudioContext)();
+        const o = ctx.createOscillator(); const g = ctx.createGain();
+        o.connect(g); g.connect(ctx.destination);
+        if(type==='success'){o.frequency.value=523;o.type='sine';g.gain.value=0.3;o.start();o.frequency.setValueAtTime(659,ctx.currentTime+0.15);o.frequency.setValueAtTime(784,ctx.currentTime+0.3);o.stop(ctx.currentTime+0.5);}
+        else if(type==='error'){o.frequency.value=200;o.type='square';g.gain.value=0.2;o.start();o.stop(ctx.currentTime+0.4);}
+        else if(type==='complete'){o.frequency.value=523;o.type='sine';g.gain.value=0.25;o.start();setTimeout(()=>{const o2=ctx.createOscillator();const g2=ctx.createGain();o2.connect(g2);g2.connect(ctx.destination);o2.frequency.value=659;o2.type='sine';g2.gain.value=0.25;o2.start();o2.stop(ctx.currentTime+0.4);},200);setTimeout(()=>{const o3=ctx.createOscillator();const g3=ctx.createGain();o3.connect(g3);g3.connect(ctx.destination);o3.frequency.value=784;o3.type='sine';g3.gain.value=0.25;o3.start();o3.stop(ctx.currentTime+0.6);},400);o.stop(ctx.currentTime+0.3);}
+    } catch(e){}
+}
+
+function startQuiz() {
+    if(pwInput.value!==PASS){document.getElementById('pw-error').classList.remove('hidden');return;}
+    document.getElementById('cover-page').classList.add('hidden');
+    document.getElementById('quiz-page').classList.remove('hidden');
+    currentQ=0;score=0;answered=false;
+    renderQuestion();
+}
+
+function renderQuestion() {
+    answered=false;
+    document.getElementById('feedback-area').classList.add('hidden');
+    document.getElementById('next-btn').classList.add('hidden');
+    const q=questions[currentQ];
+    document.getElementById('q-progress').textContent=`Câu ${currentQ+1}/20`;
+    document.getElementById('q-score').textContent=`Điểm: ${score}`;
+    document.getElementById('progress-bar').style.width=((currentQ)/20*100)+'%';
+    const area=document.getElementById('question-area');
+    if(q.type==='mc') renderMC(area,q);
+    else renderBuild(area,q);
+}
+
+function renderMC(area,q) {
+    const shuffledOpts = q.opts.map((o,i)=>({text:o,idx:i}));
+    shuffle(shuffledOpts);
+    area.innerHTML=`<p class="text-lg font-semibold text-slate-800 mb-4">${q.q}</p><div class="space-y-3">${shuffledOpts.map(o=>`<button class="mc-opt w-full text-left px-4 py-3 rounded-xl border-2 border-slate-200 hover:border-blue-400 transition font-medium" data-idx="${o.idx}">${o.text}</button>`).join('')}</div>`;
+    area.querySelectorAll('.mc-opt').forEach(btn=>{btn.addEventListener('click',()=>checkMC(btn,q));});
+}
+
+function checkMC(btn,q) {
+    if(answered)return;answered=true;
+    const idx=parseInt(btn.dataset.idx);
+    const correct=idx===q.correct;
+    if(correct){score++;playTone('success');btn.classList.add('bg-green-100','border-green-500','text-green-800');}
+    else{playTone('error');btn.classList.add('bg-red-100','border-red-500','text-red-800');document.querySelector(`.mc-opt[data-idx="${q.correct}"]`).classList.add('bg-green-100','border-green-500');}
+    document.querySelectorAll('.mc-opt').forEach(b=>b.disabled=true);
+    showFeedback(correct,q);
+}
+
+function renderBuild(area,q) {
+    sentenceBuilt=[];
+    const shuffled=shuffle([...q.words]);
+    area.innerHTML=`<p class="text-lg font-semibold text-slate-800 mb-2">Sắp xếp thành câu hoàn chỉnh:</p><div id="built-sentence" class="min-h-[48px] p-3 mb-4 bg-slate-100 rounded-xl flex flex-wrap gap-2 items-center border-2 border-dashed border-slate-300"><span class="text-slate-400 text-sm" id="build-placeholder">Nhấn vào từ để xếp câu...</span></div><div id="word-bank" class="flex flex-wrap gap-2 mb-4">${shuffled.map(w=>`<button class="word-box px-3 py-2 bg-blue-100 text-blue-800 rounded-lg font-medium border border-blue-200 hover:bg-blue-200">${w}</button>`).join('')}</div><div class="flex gap-2"><button onclick="undoWord()" class="flex-1 py-2 rounded-lg bg-yellow-100 text-yellow-800 font-medium border border-yellow-200">Undo</button><button onclick="clearWords()" class="flex-1 py-2 rounded-lg bg-red-100 text-red-800 font-medium border border-red-200">Clear</button><button onclick="checkBuild()" class="flex-1 py-2 rounded-lg bg-green-100 text-green-800 font-medium border border-green-200">Check</button></div>`;
+    document.querySelectorAll('#word-bank .word-box').forEach(btn=>{btn.addEventListener('click',()=>{if(answered)return;sentenceBuilt.push(btn.textContent);btn.disabled=true;btn.classList.add('opacity-30');renderBuiltSentence();});});
+}
+
+function renderBuiltSentence(){
+    const el=document.getElementById('built-sentence');
+    if(sentenceBuilt.length===0){el.innerHTML='<span class="text-slate-400 text-sm" id="build-placeholder">Nhấn vào từ để xếp câu...</span>';return;}
+    el.innerHTML=sentenceBuilt.map(w=>`<span class="px-2 py-1 bg-white rounded border text-sm font-medium">${w}</span>`).join('');
+}
+
+function undoWord(){
+    if(answered||!sentenceBuilt.length)return;
+    const last=sentenceBuilt.pop();
+    const btns=document.querySelectorAll('#word-bank .word-box');
+    for(let b of btns){if(b.textContent===last&&b.disabled){b.disabled=false;b.classList.remove('opacity-30');break;}}
+    renderBuiltSentence();
+}
+
+function clearWords(){
+    if(answered)return;
+    sentenceBuilt=[];
+    document.querySelectorAll('#word-bank .word-box').forEach(b=>{b.disabled=false;b.classList.remove('opacity-30');});
+    renderBuiltSentence();
+}
+
+function checkBuild(){
+    if(answered)return;
+    const q=questions[currentQ];
+    // Build the sentence: join with spaces, remove space before punctuation
+    const built=sentenceBuilt.join(' ').replace(/\s+([.,!?;:])/g,'$1');
+    const correct=built===q.answer;
+    answered=true;
+    if(correct){score++;playTone('success');}else{playTone('error');}
+    showFeedback(correct,q);
+}
+
+function showFeedback(correct,q){
+    const fb=document.getElementById('feedback-area');
+    fb.classList.remove('hidden');
+    fb.innerHTML=`<p class="font-bold text-lg ${correct?'text-green-700':'text-red-700'} mb-2">${correct?'✅ Chính xác':'❌ Chưa chính xác'}</p>${!correct&&q.type==='build'?`<p class="text-sm text-slate-700 mb-2"><strong>Đáp án:</strong> ${q.answer}</p>`:''}${!correct&&q.type==='mc'?`<p class="text-sm text-slate-700 mb-2"><strong>Đáp án:</strong> ${q.opts[q.correct]}</p>`:''}
+    <p class="text-sm text-slate-600"><strong>Giải thích:</strong> ${q.explain}</p>`;
+    document.getElementById('next-btn').classList.remove('hidden');
+    document.getElementById('q-score').textContent=`Điểm: ${score}`;
+}
+
+function nextQuestion(){
+    currentQ++;
+    if(currentQ>=questions.length){showResult();return;}
+    renderQuestion();
+}
+
+function showResult(){
+    document.getElementById('quiz-page').classList.add('hidden');
+    document.getElementById('result-page').classList.remove('hidden');
+    playTone('complete');
+    const pct=Math.round(score/20*100);
+    let perf,msg;
+    if(pct>=90){perf='🌟 Xuất sắc!';msg='Bạn nắm rất vững kiến thức về so sánh nhất!';}
+    else if(pct>=70){perf='👍 Tốt!';msg='Bạn đã hiểu khá tốt, hãy ôn thêm nhé!';}
+    else if(pct>=50){perf='📚 Khá!';msg='Cần luyện tập thêm một chút nữa.';}
+    else{perf='💪 Cần cố gắng thêm!';msg='Hãy xem lại lý thuyết và thử lại nhé!';}
+    document.getElementById('result-stats').innerHTML=`<p class="text-2xl font-bold mb-2">${perf}</p><p class="text-4xl font-bold text-blue-700 mb-2">${score}/20</p><p class="text-slate-600 mb-1">Đúng: <strong class="text-green-600">${score}</strong> | Sai: <strong class="text-red-600">${20-score}</strong></p><p class="text-slate-600 mb-3">Tỷ lệ: <strong>${pct}%</strong></p><p class="text-slate-500 italic">${msg}</p>`;
+}
+
+function resetQuiz(){
+    document.getElementById('result-page').classList.add('hidden');
+    document.getElementById('quiz-page').classList.add('hidden');
+    document.getElementById('cover-page').classList.remove('hidden');
+    pwInput.value='';startBtn.disabled=true;
+    currentQ=0;score=0;answered=false;sentenceBuilt=[];
+}
+
+// Add onclick handler to restart button
+document.addEventListener('DOMContentLoaded', () => {
+    const restartBtn = document.querySelector('[data-template-id="restart-button"]');
+    if(restartBtn) restartBtn.addEventListener('click', resetQuiz);
+});
+</script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a13e7e0701db705c',t:'MTc4MjgzNjM2My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
